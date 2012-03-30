@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+
+
+<window id="rootWnd" title="Event Extractor"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+        
+        <script src="genOverlay.js" type="application/x-javascript"/>
+        
+        
+  <vbox>
+  <label control="description1" value="Adding events to calendar requires authorized application."/>
+  <label control="description2" value="Authorization is realised in the following simple steps:"/>
+  <label control="space" value=" "/>
+    <groupbox align="start">
+      <caption label="Authorization"/>
+        <vbox>
+          <hbox>
+            <label control="1.step" value="1. Visit the following page and allow access to your calendar: "/>
+            <button oncommand="eventextractor.openURL();">
+              <description>www.google.com</description>
+            </button>
+          </hbox>
+          <hbox>
+            <label control="2.step" value="2. Generated text paste into the following box: "/>
+            <textbox id="success_code" size="40"/>
+          </hbox>
+          <hbox>
+            <label control="3.step" value="3. Confirm insertion by pressing this button:  "/>
+            <button oncommand="eventextractor.logMeIn();">
+              <description>Log in</description>
+            </button>
+          </hbox>
+           <hbox>
+            <label control="4.step" value="4. Login seccessful. You can close this window, and start adding new events."/>
+          </hbox>
+        </vbox>
+    </groupbox>
+    
+  </vbox>
+</window>
