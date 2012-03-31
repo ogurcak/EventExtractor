@@ -46,6 +46,11 @@
                 <menupopup  width="40">
                 </menupopup>
             </menulist>
+            
+            <label control="all_day_label" value="    "/>
+            <checkbox label="All-day event" checked="false" id="all_day" oncommand="eventextractor.allDayChecking();"/>
+
+            
           </hbox>
           <hbox>
             <label control="place_label" value="Place           "/>
