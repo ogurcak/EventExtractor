@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 
@@ -18,6 +20,8 @@ final class Database {
 	  private static Connection conn = null;
 	  private static Statement stmt = null;
 
+	  private static Logger logger = Logger.getLogger(Database.class.getName());
+
 
 
 
@@ -28,9 +32,9 @@ final class Database {
 			      conn = DriverManager.getConnection(connect_string, userid, password);
 			      stmt = conn.createStatement();
 
-			      System.out.println("Database is ready.");
+			      logger.log(Level.INFO, "Database is ready.");
 		    } catch (SQLException e) {
-			      System.err.println(e.getMessage() + " :Database connection problem.");
+			      logger.log(Level.WARNING, e.getMessage() + " :Database connection problem.");
 		    }
 	  }
 
@@ -38,14 +42,13 @@ final class Database {
 
 
 
-	  static public void insert(String query) {
+	  static public void insert(String query) throws SQLException {
 
-		    if (stmt != null) try {
+		    if (stmt != null) {
 			      stmt.executeUpdate(query);
-		    } catch (SQLException e) {
-			      System.err.println(e.getMessage() + " :Database insertion problem.");
+			      logger.log(Level.INFO, "Saved to database.");
 		    }
-		    else System.err.println("Database connection problem.");
+		    else logger.log(Level.WARNING, "Database connection problem.");
 	  }
 
 }

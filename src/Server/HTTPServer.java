@@ -3,15 +3,22 @@ package Server;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +37,9 @@ public class HTTPServer extends Thread {
 	  private BufferedReader incoming = null;
 	  private DataOutputStream outgoing = null;
 
-	  private String currentVersion = "2.0";
+	  private String currentVersion = "2.1";
+
+	  private static Logger logger = Logger.getLogger(HTTPServer.class.getName());
 
 
 
@@ -48,7 +57,7 @@ public class HTTPServer extends Thread {
 	  public void run() {
 
 		    try {
-			      System.out.println("The Client " + connection.getInetAddress() + ":" + connection.getPort() + " is connected.");
+			      logger.log(Level.INFO, "The Client " + connection.getInetAddress() + ":" + connection.getPort() + " is connected.");
 
 			      incoming = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			      outgoing = new DataOutputStream(connection.getOutputStream());
@@ -59,49 +68,56 @@ public class HTTPServer extends Thread {
 			      String httpQueryString = tokenizer.nextToken();
 
 			      if (httpMethod.equals("POST")) {
-					System.out.println("Client send POST request:");
-					System.out.println();
+					logger.log(Level.INFO, "Client send POST request:");
 
 					String extractionMethod = null;
 					String action = null;
 
-					String incomingLine = incoming.readLine();
-					while (incomingLine.length() > 0) {
-						  System.out.println(incomingLine);
-						  if (incomingLine.contains("Authorization")) {
-							    tokenizer = new StringTokenizer(incomingLine);
+
+					String line = incoming.readLine();
+					String incomingLine = line;
+					while (line.length() > 0) {
+						  if (line.contains("Authorization: ")) {
+							    tokenizer = new StringTokenizer(line);
 							    httpMethod = tokenizer.nextToken();
 							    httpQueryString = tokenizer.nextToken();
 							    httpQueryString = tokenizer.nextToken();
 							    if (!httpQueryString.equals(currentVersion)) {
-								      sendResponse(400, "Error: K dispozicii je novsia verzia EventExtractora.\r\n");
-								      throw (new Exception("Plugin has old version of plugin."));
+								      logger.log(Level.INFO, incomingLine);
+								      sendResponse(400, "Error: A newer version is available.\r\n");
+								      throw (new Exception("Plugin has old version."));
 
 							    }
 						  }
-						  if (incomingLine.contains("ExtractionMethod")) {
-							    tokenizer = new StringTokenizer(incomingLine);
+						  if (line.contains("ExtractionMethod: ")) {
+							    tokenizer = new StringTokenizer(line);
 							    httpMethod = tokenizer.nextToken();
 							    extractionMethod = tokenizer.nextToken();
 						  }
-						  if (incomingLine.contains("Action")) {
-							    tokenizer = new StringTokenizer(incomingLine);
+						  if (line.contains("Action: ")) {
+							    tokenizer = new StringTokenizer(line);
 							    httpMethod = tokenizer.nextToken();
 							    action = tokenizer.nextToken();
 						  }
-						  incomingLine = incoming.readLine();
+
+						  line = incoming.readLine();
+						  incomingLine = incomingLine.concat("\n" + line);
 					}
 
 
 					if (action.contains("ANALYZE")) {
 
-						  String message = incoming.readLine() + "\n";
+
+						  String message = "";
 						  while (incoming.ready()) {
-							    message = message.concat(incoming.readLine());
+							    line = incoming.readLine();
+							    message = message.concat(line);
 							    message = message.concat("\n");
 						  }
 
-						  System.out.println(message); // message
+
+						  incomingLine = incomingLine.concat("\n\n" + message);
+						  logger.log(Level.INFO, incomingLine);
 
 						  // Analyzation Part
 
@@ -114,14 +130,14 @@ public class HTTPServer extends Thread {
 
 							    if (c2.getSuperclass() != Event.class) {
 								      sendResponse(404, "Error: Ilegal extraction method \"" + extractionMethod + "\". Select another one.");
-								      System.err.println("Ilegal Extraction method \"" + extractionMethod + "\".");
+								      logger.log(Level.SEVERE, "Ilegal Extraction method \"" + extractionMethod + "\".");
 								      throw (new Exception("Ilegal Extraction method \"" + extractionMethod + "\"."));
 							    }
 							    Constructor<Event> ctor = c2.getConstructor();
 							    event = ctor.newInstance();
 						  } catch (ClassNotFoundException e) {
 							    sendResponse(404, "Error: Extraction method \"" + extractionMethod + "\" doesnt available. Select another one.");
-							    System.err.println("Extraction method \"" + extractionMethod + "\" doesnt available.");
+							    logger.log(Level.SEVERE, "Extraction method \"" + extractionMethod + "\" doesnt available.");
 							    throw (new Exception("Extraction method \"" + extractionMethod + "\" doesnt available."));
 						  }
 
@@ -135,7 +151,7 @@ public class HTTPServer extends Thread {
 							    if (vcal.getDateFrom() != null) event.addDateFrom(vcal.getDateFrom());
 							    if (vcal.getDateTo() != null) event.addDateTo(vcal.getDateTo());
 						  } else {
-							    event.setMessage(message);
+							    event.parseMessage(message);
 							    event.analyzeMessage();
 						  }
 
@@ -144,35 +160,67 @@ public class HTTPServer extends Thread {
 						  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 						  JSONArray names = new JSONArray();
-						  if (event.getNames().size() > 0) for (String name : event.getNames())
-							    names.put(name);
+						  if (event.getNames().size() > 0) for (String name : event.getNames()) {
+							    if (names.length() > 5) break;
+							    boolean equal = false;
+							    for (int i = 0; i < names.length(); i++)
+								      if (names.getString(i).equalsIgnoreCase(name)) equal = true;
+							    if (!equal) names.put(name);
+						  }
 						  else names.put("");
 
 						  JSONArray places = new JSONArray();
-						  if (event.getPlaces().size() > 0) for (String place : event.getPlaces())
-							    places.put(place);
+						  if (event.getPlaces().size() > 0) for (String place : event.getPlaces()) {
+							    if (places.length() > 5) break;
+							    boolean equal = false;
+							    for (int i = 0; i < places.length(); i++)
+								      if (places.getString(i).equalsIgnoreCase(place)) equal = true;
+							    if (!equal) places.put(place);
+						  }
+
 						  else places.put("");
 
 						  JSONArray datesFrom = new JSONArray();
-						  if (event.getDatesFrom().size() > 0) for (Calendar time : event.getDatesFrom())
-							    datesFrom.put(sdf.format(time.getTime()));
+						  if (event.getDatesFrom().size() > 0) for (Calendar time : event.getDatesFrom()) {
+							    if (datesFrom.length() > 5) break;
+							    boolean equal = false;
+							    for (int i = 0; i < datesFrom.length(); i++)
+								      if (datesFrom.getString(i).equalsIgnoreCase(sdf.format(time.getTime()))) equal = true;
+							    if (!equal) datesFrom.put(sdf.format(time.getTime()));
+						  }
 						  else datesFrom.put("");
 
 						  JSONArray datesTo = new JSONArray();
-						  if (event.getDatesTo().size() > 0) for (Calendar time : event.getDatesTo())
-							    datesTo.put(sdf.format(time.getTime()));
+						  if (event.getDatesTo().size() > 0) for (Calendar time : event.getDatesTo()) {
+							    if (datesTo.length() > 5) break;
+							    boolean equal = false;
+							    for (int i = 0; i < datesTo.length(); i++)
+								      if (datesTo.getString(i).equalsIgnoreCase(sdf.format(time.getTime()))) equal = true;
+							    if (!equal) datesTo.put(sdf.format(time.getTime()));
+						  }
 						  else datesTo.put("");
 
 						  sdf = new SimpleDateFormat("HH:mm");
 
 						  JSONArray timesFrom = new JSONArray();
-						  if (event.getDatesFrom().size() > 0) for (Calendar time : event.getDatesFrom())
-							    timesFrom.put(sdf.format(time.getTime()));
+						  if (event.getDatesFrom().size() > 0) for (Calendar time : event.getDatesFrom()) {
+							    if (timesFrom.length() > 5) break;
+							    boolean equal = false;
+							    for (int i = 0; i < timesFrom.length(); i++)
+								      if (timesFrom.getString(i).equalsIgnoreCase(sdf.format(time.getTime()))) equal = true;
+							    if (!equal) timesFrom.put(sdf.format(time.getTime()));
+						  }
+
 						  else timesFrom.put("");
 
 						  JSONArray timesTo = new JSONArray();
-						  if (event.getDatesTo().size() > 0) for (Calendar time : event.getDatesTo())
-							    timesTo.put(sdf.format(time.getTime()));
+						  if (event.getDatesTo().size() > 0) for (Calendar time : event.getDatesTo()) {
+							    if (timesTo.length() > 5) break;
+							    boolean equal = false;
+							    for (int i = 0; i < timesTo.length(); i++)
+								      if (timesTo.getString(i).equalsIgnoreCase(sdf.format(time.getTime()))) equal = true;
+							    if (!equal) timesTo.put(sdf.format(time.getTime()));
+						  }
 						  else timesTo.put("");
 
 						  String description;
@@ -191,34 +239,36 @@ public class HTTPServer extends Thread {
 							    // send response
 							    sendResponse(200, JSONobj.toString());
 						  } catch (JSONException e) {
-							    System.err.println(e.getMessage() + " :Problem with JSON creation.");
+							    logger.log(Level.SEVERE, e.getMessage() + " :Problem with JSON creation.");
 						  }
 
 					}
 					if (action.contains("SAVE")) {
 
+						  logger.log(Level.INFO, incomingLine);
 						  saveToDatabase();
 					}
 					if (action.contains("GET_METHODS")) {
-
+						  logger.log(Level.INFO, incomingLine);
 						  getImplementatios();
 					}
 
 			      }
 
 			      if (httpMethod.equals("GET")) {
-					System.out.println("Client send GET request.");
+					logger.log(Level.INFO, "Client send GET request.");
 					while (incoming.ready())
-						  System.out.println(incoming.readLine());
+						  logger.log(Level.INFO, incoming.readLine());
+					incoming.close();
 
 					String responseString = "Error: GET request doesnt available.\r\n";
 					sendResponse(404, responseString);
 
 			      }
 
-			      incoming.close();
+
 		    } catch (IOException e) {
-			      System.err.println(e.getMessage() + " :Reading from plugin error.");
+			      logger.log(Level.SEVERE, e.getMessage() + " :Reading from plugin error.");
 			      sendResponse(404, "problem with reading");
 		    } catch (Exception e) {}
 
@@ -228,20 +278,62 @@ public class HTTPServer extends Thread {
 
 
 
-	  // TODO nieco vymysliet
-	  private void getImplementatios() {
+	  
+	  @SuppressWarnings({ "rawtypes", "unchecked" })
+          private void getImplementatios() {
+
+		    final FileFilter filter = new FileFilter() {
+
+			      public boolean accept(File pathname) {
+
+					return pathname.getName().endsWith(".jar");
+			      }
+		    };
+		    
+		    File file = new File("extraction_methods");
+		    List<File> jars = new ArrayList<File>();
+
+		    for (File f : file.listFiles(filter)) 
+			      jars.add(f);		    
+		    
+		    List<String> foundClasses = new ArrayList<>();
+		    for (File f : jars) {
+			      JarFile jar;
+			      try {
+					jar = new JarFile(f);
+					for (Enumeration em1 = jar.entries(); em1.hasMoreElements();) {
+						  String s = em1.nextElement().toString();
+						  if (s.contains(".class")) {
+							    s = s.replace("/", ".").replace(".class", "");
+							    Class<Event> c2;
+							    try {
+								      c2 = (Class<Event>) Class.forName(s);
+								      if (c2.getSuperclass() == Event.class) foundClasses.add(s);
+							    } catch (ClassNotFoundException e) {
+								      logger.log(Level.SEVERE, e.getMessage());
+							    }
+						  }
+					}
+			      } catch (IOException e) {
+					logger.log(Level.SEVERE, e.getMessage());
+			      }
+		    }
+
 
 		    JSONObject JSONobj = new JSONObject();
 
 		    JSONArray implementatios = new JSONArray();
-		    implementatios.put("Extractor_SK.Event");
-		    implementatios.put("Extractor_EN.Event");
+
+		    for (String s : foundClasses)
+			      implementatios.put(s);
+
 		    try {
 			      JSONobj.put("Implementations", implementatios);
 		    } catch (JSONException e) {
-			      System.err.println(e.getMessage() + " :Problem with JSON creation.");
+			      logger.log(Level.SEVERE, e.getMessage() + " :Problem with JSON creation.");
 		    }
 		    sendResponse(200, JSONobj.toString());
+
 
 	  }
 
@@ -249,7 +341,6 @@ public class HTTPServer extends Thread {
 
 
 
-	  // TODO change database to save calendarName
 	  private void saveToDatabase() {
 
 		    String message = null;
@@ -261,16 +352,15 @@ public class HTTPServer extends Thread {
 					message = message.concat("\n");
 			      }
 
-			      sendResponse(200, "saved");
-
-			      System.out.println(message); // message
+			      incoming.close();
+			      logger.log(Level.INFO, message); // message
 
 
 			      JSONObject obj = (JSONObject) new JSONTokener(message).nextValue();
 
 			      String received_message = obj.get("messagepane").toString();
 			      String received_version = obj.get("version").toString();
-			      String received_language = obj.get("ExtractionMethod").toString();
+			      String received_method = obj.get("ExtractionMethod").toString();
 			      String received_calendar = obj.get("CalendarName").toString();
 
 			      JSONObject sended = (JSONObject) obj.get("sended");
@@ -323,12 +413,14 @@ public class HTTPServer extends Thread {
 
 			      String received_description = received.getString("Description");
 
-			      String qry = "INSERT INTO dbo.EventExtractor (mail, version, language, sended_name, sended_place, sended_dateFrom, sended_timeFrom, sended_dateTo, sended_timeTo, sended_description, received_name_1, received_name_2, received_name_3, received_name_4, received_name_5, received_place_1, received_place_2, received_place_3, received_place_4, received_place_5, received_dateFrom_1, received_dateFrom_2, received_dateFrom_3, received_dateFrom_4, received_dateFrom_5, received_description, received_timeFrom_1, received_timeFrom_2, received_timeFrom_3, received_timeFrom_4, received_timeFrom_5, received_dateTo_1, received_dateTo_2, received_dateTo_3, received_dateTo_4, received_dateTo_5, received_timeTo_1, received_timeTo_2, received_timeTo_3, received_timeTo_4, received_timeTo_5) VALUES ('"
+			      String qry = "INSERT INTO dbo.EventExtractor (mail, version, extraction_method, calendar_name, sended_name, sended_place, sended_dateFrom, sended_timeFrom, sended_dateTo, sended_timeTo, sended_description, received_name_1, received_name_2, received_name_3, received_name_4, received_name_5, received_place_1, received_place_2, received_place_3, received_place_4, received_place_5, received_dateFrom_1, received_dateFrom_2, received_dateFrom_3, received_dateFrom_4, received_dateFrom_5, received_description, received_timeFrom_1, received_timeFrom_2, received_timeFrom_3, received_timeFrom_4, received_timeFrom_5, received_dateTo_1, received_dateTo_2, received_dateTo_3, received_dateTo_4, received_dateTo_5, received_timeTo_1, received_timeTo_2, received_timeTo_3, received_timeTo_4, received_timeTo_5) VALUES ('"
 				                  + received_message
 				                  + "','"
 				                  + received_version
 				                  + "','"
-				                  + received_language
+				                  + received_method
+				                  + "','"
+				                  + received_calendar
 				                  + "','"
 				                  + sended_name
 				                  + "','"
@@ -400,17 +492,22 @@ public class HTTPServer extends Thread {
 				                  + "','"
 				                  + received_timeTos.get(1)
 				                  + "','"
-				                  + received_timeTos.get(2)
-				                  + "','"
-				                  + received_timeTos.get(3) + "','" + received_timeTos.get(4) + "');";
+				                  + received_timeTos.get(2) + "','" + received_timeTos.get(3) + "','" + received_timeTos.get(4) + "');";
 
-			      Database.insert(qry);
+			      try {
+					Database.insert(qry);
+					sendResponse(200, "Data saved into database.");
+			      } catch (SQLException e) {
+					logger.log(Level.WARNING, e.getMessage() + " :Database insertion problem.");
+					sendResponse(404, "Database insertion problem.");
+			      }
+
 
 		    } catch (IOException e) {
-			      System.err.println(e.getMessage() + " :Reading from plugin error.");
+			      logger.log(Level.SEVERE, e.getMessage() + " :Reading from plugin error.");
 			      sendResponse(404, "problem with reading");
 		    } catch (JSONException e) {
-			      System.err.println(e.getMessage() + " :Parsing JSON error.");
+			      logger.log(Level.SEVERE, e.getMessage() + " :Parsing JSON error.");
 			      sendResponse(404, "problem with parsing");
 		    }
 
@@ -443,12 +540,9 @@ public class HTTPServer extends Thread {
 
 			      outgoing.close();
 
-			      System.out.println();
-			      System.out.println("Server send response: Status " + status + ": \n" + responseString);
-			      System.out.println();
-			      System.out.println();
+			      logger.log(Level.INFO, "Server send response: Status " + status + ": \n" + responseString);
 		    } catch (IOException e) {
-			      System.err.println(e.getMessage() + ":Problem with sending to plugin.");
+			      logger.log(Level.SEVERE, e.getMessage() + ":Problem with sending to plugin.");
 		    }
 
 

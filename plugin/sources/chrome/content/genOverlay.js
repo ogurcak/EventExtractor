@@ -8,7 +8,7 @@ var eventextractor = {
     refresh_token : "none",
     success_code : "none",
     calendar_name : "none",    
-    curent_version : "EventExtractor 2.0",    
+    curent_version : "EventExtractor 2.1",    
     myWindow : null,
     
     
@@ -352,9 +352,24 @@ var eventextractor = {
             extractionMethod = "Extractor_EN.Event";
         }
         
+        var selectedMessage = gFolderDisplay.selectedMessage;
         
-        var messagepane = document.getElementById("messagepane").contentDocument.body.innerHTML;
-                   
+        var messagepane = "";
+        messagepane = messagepane.concat("From: " + selectedMessage.author + "\n");
+        messagepane = messagepane.concat("To: " + selectedMessage.recipients + "\n");
+        messagepane = messagepane.concat("Date: " +selectedMessage.dateInSeconds +"\n");
+        messagepane = messagepane.concat("Subject: " + selectedMessage.subject + "\n");
+              
+        
+        let messenger = Components.classes["@mozilla.org/messenger;1"].createInstance(Components.interfaces.nsIMessenger);
+        let listener = Components.classes["@mozilla.org/network/sync-stream-listener;1"].createInstance(Components.interfaces.nsISyncStreamListener);
+        let uri = selectedMessage.folder.getUriForMsg(selectedMessage);
+        messenger.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
+        let folder = selectedMessage.folder;
+        
+        messagepane = messagepane.concat("Content: " + folder.getMsgTextFromStream(listener.inputStream, selectedMessage.Charset, 65536, 32768, false, true, { }));
+        messagepane = messagepane.concat("\n");
+                         
         var request = new XMLHttpRequest();
         request.open('POST', server, false);   
         request.setRequestHeader('Authorization', this.curent_version);

@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +22,8 @@ public class VCalendar {
 	  protected String description = null;
 	  protected Calendar dateFrom = null;
 	  protected Calendar dateTo = null;
+
+	  private static Logger logger = Logger.getLogger(VCalendar.class.getName());
 
 
 
@@ -63,7 +67,7 @@ public class VCalendar {
 			      try {
 					date = (Date) formatter.parse(matcher.group().replace("DTSTART:", "").replace("T", "").replace("Z", ""));
 			      } catch (ParseException e) {
-					System.err.println(e.getMessage());
+					logger.log(Level.SEVERE, e.getMessage());
 			      }
 			      dateFrom = GregorianCalendar.getInstance();
 			      dateFrom.setTime(date);
@@ -79,7 +83,7 @@ public class VCalendar {
 			      try {
 					date = (Date) formatter.parse(matcher.group().replace("DTEND:", "").replace("T", "").replace("Z", ""));
 			      } catch (ParseException e) {
-					System.err.println(e.getMessage());
+					logger.log(Level.SEVERE, e.getMessage());
 			      }
 			      dateTo = GregorianCalendar.getInstance();
 			      dateTo.setTime(date);
