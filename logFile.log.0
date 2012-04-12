@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="windows-1250" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2012-04-12T20:40:38</date>
+  <millis>1334256038639</millis>
+  <sequence>0</sequence>
+  <logger>Server.Database</logger>
+  <level>INFO</level>
+  <class>Server.Database</class>
+  <method>connect</method>
+  <thread>1</thread>
+  <message>Database is ready.</message>
+</record>
+<record>
+  <date>2012-04-12T20:40:38</date>
+  <millis>1334256038674</millis>
+  <sequence>1</sequence>
+  <logger>Server.Main</logger>
+  <level>INFO</level>
+  <class>Server.Main</class>
+  <method>main</method>
+  <thread>1</thread>
+  <message>Server is ready and waiting for client request.</message>
+</record>
