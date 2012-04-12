@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<?xul-overlay href="chrome://eventextractor/content/genOverlay.xul"?>
+<!DOCTYPE overlay>
+<overlay id="eventextractor-tboverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="thunderbird.js" type="application/x-javascript"/>
+         
+  <!-- Thunderbird main window (messageWindow.xul, messenger.xul) -->
+  <window id="messengerWindow">
+    <commandset id="mailCommands">
+      <command id="eventextractor-command-find"/>
+    </commandset>
+    <keyset id="mailKeys">
+      <key id="eventextractor-key-find"/>
+    </keyset>
+    <!-- Context menu -->
+    <menupopup id="mailContext">
+      <menuitem id="eventextractor-context-find"/>
+    </menupopup>
+  </window>
+   
+  <!-- Thunderbird compose window (messengercompose.xul) -->
+  <window id="msgcomposeWindow">
+    <commandset id="composeCommands">
+      <command id="eventextractor-command-find"/>
+    </commandset>
+    <keyset id="tasksKeys">
+      <key id="eventextractor-key-find"/>
+    </keyset>
+    <!-- Context menu -->
+    <menupopup id="msgComposeContext">
+      <menuitem id="eventextractor-context-find"/>
+    </menupopup>
+  </window>
+  
+</overlay>
