@@ -16,20 +16,23 @@ import java.util.logging.Logger;
 
 
 public class Main {
-	  
-	  private static Logger logger = Logger.getLogger( Main.class.getName() );
+
+	  private static Logger logger = Logger.getLogger(Main.class.getName());
+
+
+
 
 
 	  public static void main(String args[]) {
 
 		    LogManager lm = LogManager.getLogManager();
 
-			try {
-				InputStream is = new FileInputStream( "LogManager.txt" );
-				lm.readConfiguration( is );
-			} catch( Exception e ) {
-				System.err.println("Error: Logging failed!!"+e.getMessage() );
-			}
+		    try {
+			      InputStream is = new FileInputStream("LogManager.txt");
+			      lm.readConfiguration(is);
+		    } catch (Exception e) {
+			      System.err.println("Error: Logging failed!!" + e.getMessage());
+		    }
 
 		    Database.connect();
 
