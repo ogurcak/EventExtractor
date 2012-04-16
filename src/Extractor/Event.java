@@ -31,7 +31,7 @@ abstract public class Event {
 
 	  protected MimeMessage message = null;
 	  
-	  private static Logger logger = Logger.getLogger(Event.class.getName());
+	  protected static Logger logger = Logger.getLogger(Event.class.getName());
 
 
 

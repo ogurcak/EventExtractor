@@ -184,7 +184,7 @@ var eventextractor = {
         if(document.getElementById("all_day").checked)
             requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"date": "'+document.getElementById("date_from").value+'"\n},\n"end": {\n "date":"'+document.getElementById("date_to").value+'"\n}\n}';
         else
-            requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"dateTime": "'+document.getElementById("date_from").value+'T'+document.getElementById("time_from").value+':00.000+01:00"\n},\n"end": {\n "dateTime":"'+document.getElementById("date_to").value+'T'+document.getElementById("time_to").value+':00.000+01:00"\n}\n}';
+            requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"dateTime": "'+document.getElementById("date_from").value+'T'+document.getElementById("time_from").value+':00.000+02:00"\n},\n"end": {\n "dateTime":"'+document.getElementById("date_to").value+'T'+document.getElementById("time_to").value+':00.000+02:00"\n}\n}';
         
         //get access_token
         var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);

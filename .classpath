@@ -4,8 +4,15 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="lib/sqljdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/json.jar"/>
-	<classpathentry kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar" sourcepath="lib/mail.jar"/>
 	<classpathentry kind="lib" path="extraction_methods/ENextractor.jar"/>
 	<classpathentry kind="lib" path="extraction_methods/EE.jar"/>
+	<classpathentry kind="lib" path="extraction_methods/kosmel.jar"/>
+	<classpathentry kind="lib" path="extraction_methods/kucecka.jar"/>
+	<classpathentry kind="lib" path="extraction_methods/lib/ENextractor.jar"/>
+	<classpathentry kind="lib" path="extraction_methods/lib/mail.jar"/>
+	<classpathentry kind="lib" path="extraction_methods/lib/stanford-postagger.jar"/>
+	<classpathentry kind="lib" path="extraction_methods/lib/uima-core.jar"/>
+	<classpathentry kind="lib" path="extraction_methods/lib/uima-tools.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
