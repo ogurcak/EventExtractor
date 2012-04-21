@@ -8,7 +8,7 @@ var eventextractor = {
     refresh_token : "none",
     success_code : "none",
     calendar_name : "none",    
-    curent_version : "EventExtractor 2.1",    
+    curent_version : "EventExtractor 2.2",    
     myWindow : null,
     
     
@@ -41,7 +41,7 @@ var eventextractor = {
             
         } 
         else
-            alert("Unexpected error. Try again later.");
+            eventextractor.showError("Unexpected error. Try again later.");
         
     },
     
@@ -74,6 +74,7 @@ var eventextractor = {
         } 
         else
             //obnova neprebehla korektne, je potrebna autorizacia
+            eventextractor.showError("Authorization required. Try again after authorization.");  
             this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=210,chrome=yes');
         
     },
@@ -97,6 +98,7 @@ var eventextractor = {
         getCalendarName: function ()
     {      
         //get access_token
+        eventextractor.showInfo("Trying to get your calendar name.");
         var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
         wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
         
@@ -127,24 +129,32 @@ var eventextractor = {
                                 if(response[i].search('"owner"') != -1) break;
                         }
                         calendar_name = calendar_name.substr(10, calendar_name.length-12);
+                        eventextractor.showInfo("Your calendar name is '"+calendar_name+"'.");
                     
                     } else {
-                    alert("Error in calendar name extraction. Please contact developer.");
+                    eventextractor.showError("Error in calendar name extraction. Please contact developer.");
                     }
                 }
             }else {
                 subkey.close();
                 wrk.close();
+                eventextractor.showError("Authorization required. Try again after authorization.");
                 this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=210,chrome=yes');
             } 
         
-        }        
+        } else {
+                subkey.close();
+                wrk.close();
+                eventextractor.showError("Authorization required. Try again after authorization.");
+                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=210,chrome=yes');
+            }        
      },
      
      
     
     createNewEvent: function ()
     {
+        eventextractor.showInfo("Creating event...");
         eventextractor.getCalendarName();   
 
         var description = document.getElementById("description").value.replace(/\n/gi, "  ");
@@ -179,18 +189,33 @@ var eventextractor = {
             document.getElementById("time_to").value = timeValue;
         }
         
-              
+
+        var timeOffset;
+        var d = new Date();
+        var centralTime = d.getTimezoneOffset()/60;
+        if(centralTime > 0){
+            if(centralTime > 9) timeOffset = "-"+centralTime;
+            else timeOffset = "-0"+centralTime;
+        }else{
+            if(centralTime < -9)  timeOffset = "+"+(-centralTime);
+            else timeOffset = "+0"+(-centralTime);
+        }
+        
+
+        
+            
         var requestText;
         if(document.getElementById("all_day").checked)
             requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"date": "'+document.getElementById("date_from").value+'"\n},\n"end": {\n "date":"'+document.getElementById("date_to").value+'"\n}\n}';
         else
-            requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"dateTime": "'+document.getElementById("date_from").value+'T'+document.getElementById("time_from").value+':00.000+02:00"\n},\n"end": {\n "dateTime":"'+document.getElementById("date_to").value+'T'+document.getElementById("time_to").value+':00.000+02:00"\n}\n}';
+            requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"dateTime": "'+document.getElementById("date_from").value+'T'+document.getElementById("time_from").value+':00.000'+timeOffset+':00"\n},\n"end": {\n "dateTime":"'+document.getElementById("date_to").value+'T'+document.getElementById("time_to").value+':00.000'+timeOffset+':00"\n}\n}';
         
         //get access_token
         var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
         wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
         
         if (wrk.hasChild("Mozilla\\Thunderbird")) {
+            
             var subkey = wrk.openChild("Mozilla\\Thunderbird", wrk.ACCESS_READ);
             access_token = subkey.readStringValue("Access_token");
             
@@ -206,10 +231,10 @@ var eventextractor = {
             request.send(requestText);
                  
             if(request.status == "401"){
-            eventextractor.refreshToken();                
+                eventextractor.refreshToken();                
             } else {
                 if(request.status == "200"){  
-                    alert("Event created seccussfuly.");
+                    eventextractor.showInfo("Event created seccussfuly.");
                                   
                     var server;
                     var extractionMethod;
@@ -225,12 +250,12 @@ var eventextractor = {
                         wrk.close();
                     } else {
                         wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-                        wrk.writeStringValue("ExtractionMethod", "Extractor_EN.Event");
+                        wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
                         wrk.writeStringValue("Server", "http://127.0.0.1:5000");
                         wrk.close(); 
             
                         server = "http://127.0.0.1:5000";
-                        extractionMethod = "Extractor_EN.Event";
+                        extractionMethod = "Extractor.EventRegex";
                     }
                     
                     document.database_Json.version = this.curent_version;
@@ -254,10 +279,16 @@ var eventextractor = {
                     request2.setRequestHeader('Content-Type', 'text/html');
                     request2.setRequestHeader('Action', 'SAVE');
         
-                    request2.send(jsonString);              
+                    request2.send(jsonString);      
+                    
+                    if(request2.status = "200")
+                        eventextractor.showInfo("Data saved successfully.");
+                    else
+                        eventextractor.showError(request2.text);
+                                
                     
                 } else {
-                    alert("Unexpected error. Check inserted data and try again later.");
+                    eventextractor.showError("Unexpected error. Check inserted data and try again later.");
                 }
             }
 
@@ -322,6 +353,7 @@ var eventextractor = {
         document.getElementById("place").removeAllItems();
         document.getElementById("description").value = ""; 
     
+        eventextractor.showInfo("Default value saved.");
     },
     
     
@@ -329,7 +361,7 @@ var eventextractor = {
     
     getEventData: function()
     {
-    
+        
         var server;
         var extractionMethod;
         
@@ -344,15 +376,16 @@ var eventextractor = {
             wrk.close();
         } else {
             wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("ExtractionMethod", "Extractor_EN.Event");
+            wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
             wrk.writeStringValue("Server", "http://127.0.0.1:5000");
             wrk.close(); 
             
             server = "http://127.0.0.1:5000";
-            extractionMethod = "Extractor_EN.Event";
+            extractionMethod = "Extractor.EventRegex";
         }
         
-        var selectedMessage = gFolderDisplay.selectedMessage;
+        var win = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getMostRecentWindow("mail:3pane");
+        var selectedMessage = win.gFolderDisplay.selectedMessage;
         
         var messagepane = "";
         messagepane = messagepane.concat("From: " + selectedMessage.author + "\n");
@@ -369,6 +402,8 @@ var eventextractor = {
         
         messagepane = messagepane.concat("Content: " + folder.getMsgTextFromStream(listener.inputStream, selectedMessage.Charset, 65536, 32768, false, true, { }));
         messagepane = messagepane.concat("\n");
+        
+        eventextractor.showInfo("Waiting for extracted data.");
                          
         var request = new XMLHttpRequest();
         request.open('POST', server, false);   
@@ -379,7 +414,11 @@ var eventextractor = {
         
         request.send(messagepane);
         
+        
+        
         if(request.status == "200"){
+            var loaded = 0;
+        
             var JSONdata = JSON.parse(request.responseText);
             
             var newJson = new Object();
@@ -388,54 +427,63 @@ var eventextractor = {
             newJson.received = new Object;
             
             newJson.received.Name = new Array();
-            for(var j=0; j<JSONdata.Name.length; j++){           
-                        this.myWindow.document.getElementById("name").appendItem(JSONdata.Name[j]); 
+            for(var j=0; j<JSONdata.Name.length; j++){
+                        if(JSONdata.Name[j] != "") loaded++;           
+                        document.getElementById("name").appendItem(JSONdata.Name[j]); 
                         newJson.received.Name[j] = JSONdata.Name[j];
                         }
-            this.myWindow.document.getElementById("name").selectedIndex = 0;  
+            document.getElementById("name").selectedIndex = 0;  
             
             newJson.received.Place = new Array();
-            for(var j=0; j<JSONdata.Place.length; j++){           
-                        this.myWindow.document.getElementById("place").appendItem(JSONdata.Place[j]); 
+            for(var j=0; j<JSONdata.Place.length; j++){    
+                        if(JSONdata.Place[j] != "") loaded++;       
+                        document.getElementById("place").appendItem(JSONdata.Place[j]); 
                         newJson.received.Place[j] = JSONdata.Place[j];
                         }
-            this.myWindow.document.getElementById("place").selectedIndex = 0;  
+            document.getElementById("place").selectedIndex = 0;  
             
             newJson.received.DateFrom = new Array();
-            for(var j=0; j<JSONdata.DateFrom.length; j++){           
-                        this.myWindow.document.getElementById("date_from").appendItem(JSONdata.DateFrom[j]); 
+            for(var j=0; j<JSONdata.DateFrom.length; j++){  
+                        if(JSONdata.DateFrom[j] != "") loaded++;         
+                        document.getElementById("date_from").appendItem(JSONdata.DateFrom[j]); 
                         newJson.received.DateFrom[j] = JSONdata.DateFrom[j];
                         }
-            this.myWindow.document.getElementById("date_from").selectedIndex = 0;  
+            document.getElementById("date_from").selectedIndex = 0;  
             
             newJson.received.TimeFrom = new Array();
-            for(var j=0; j<JSONdata.TimeFrom.length; j++){           
-                        this.myWindow.document.getElementById("time_from").appendItem(JSONdata.TimeFrom[j]); 
+            for(var j=0; j<JSONdata.TimeFrom.length; j++){     
+                        if(JSONdata.TimeFrom[j] != "")loaded++;      
+                        document.getElementById("time_from").appendItem(JSONdata.TimeFrom[j]); 
                         newJson.received.TimeFrom[j] = JSONdata.TimeFrom[j];
                         }
-            this.myWindow.document.getElementById("time_from").selectedIndex = 0;  
+            document.getElementById("time_from").selectedIndex = 0;  
             
             newJson.received.DateTo = new Array();
-            for(var j=0; j<JSONdata.DateTo.length; j++){           
-                        this.myWindow.document.getElementById("date_to").appendItem(JSONdata.DateTo[j]); 
+            for(var j=0; j<JSONdata.DateTo.length; j++){ 
+                        if(JSONdata.DateTo[j] != "")loaded++;          
+                        document.getElementById("date_to").appendItem(JSONdata.DateTo[j]); 
                         newJson.received.DateTo[j] = JSONdata.DateTo[j];
                         }
-            this.myWindow.document.getElementById("date_to").selectedIndex = 0;  
+            document.getElementById("date_to").selectedIndex = 0;  
             
             newJson.received.TimeTo = new Array();
-            for(var j=0; j<JSONdata.TimeTo.length; j++){           
-                        this.myWindow.document.getElementById("time_to").appendItem(JSONdata.TimeTo[j]); 
+            for(var j=0; j<JSONdata.TimeTo.length; j++){  
+                        if(JSONdata.TimeTo[j] != "") loaded++;         
+                        document.getElementById("time_to").appendItem(JSONdata.TimeTo[j]); 
                         newJson.received.TimeTo[j] = JSONdata.TimeTo[j];
                         }
-            this.myWindow.document.getElementById("time_to").selectedIndex = 0;  
+            document.getElementById("time_to").selectedIndex = 0;  
             
             newJson.received.Description = JSONdata.Description;
-            this.myWindow.document.getElementById("description").value = JSONdata.Description; 
+            if(JSONdata.Description != "") loaded++;
+            document.getElementById("description").value = JSONdata.Description; 
             
-            this.myWindow.document.database_Json = newJson;          
+            document.database_Json = newJson;     
+            
+            eventextractor.showInfo("Extraction complete. Founded "+loaded+" items.");     
                        
         } else 
-            alert(request.responseText);
+            eventextractor.showError(request.responseText);
             
 
     
@@ -449,9 +497,9 @@ var eventextractor = {
      onMenuItemCommand: function(event)
     {
     
-        this.myWindow = window.open('chrome://eventextractor/content/window.xul','','resizable=no,scrollbars=no,location=yes,width=500,height=260,chrome=yes'); 
+        this.myWindow = window.open('chrome://eventextractor/content/window.xul','','resizable=no,scrollbars=no,location=yes,width=490,height=280,chrome=yes'); 
         
-        eventextractor.getEventData();
+        
 
     },
     
@@ -473,6 +521,35 @@ var eventextractor = {
             document.getElementById("time_to").selectedIndex = 0; 
         }
     },
+    
+    
+    
+    
+    showError: function (text)
+    {
+        document.getElementById("icon2").width = 0;
+        document.getElementById("icon2").height = 0; 
+        document.getElementById("icon1").width = 13;
+        document.getElementById("icon1").height = 13;        
+        document.getElementById("info_label").value = text;
+        document.getElementById("info_label").style.color = "red";
+    },
+    
+    
+    
+    
+    showInfo: function (text)
+    {
+        document.getElementById("icon1").width = 0;
+        document.getElementById("icon1").height = 0; 
+        document.getElementById("icon2").width = 14;
+        document.getElementById("icon2").height = 13;        
+        document.getElementById("info_label").value = text;
+        document.getElementById("info_label").style.color = "black";
+    },
+    
+    
+    
 
 }
 
@@ -516,7 +593,7 @@ var options = {
                 document.getElementById("extraction_method").selectedIndex = 0;            
                        
             } else 
-                alert(request.responseText);
+                eventextractor.showError(request.responseText);
                 
             document.getElementById("extraction_method").value = subkey.readStringValue("ExtractionMethod");
             
@@ -525,7 +602,7 @@ var options = {
             
         } else {
             wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("ExtractionMethod", "Extractor_EN.Event");
+            wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
             wrk.writeStringValue("Server", "http://127.0.0.1:5000");
             wrk.close(); 
             
@@ -557,7 +634,7 @@ var options = {
         if (wrk.hasChild("Mozilla\\Thunderbird"))
              wrk.removeChild("Mozilla\\Thunderbird");
         
-        alert("Registers succsessfully cleaned.");        
+        alert("Registers successfully cleaned.");        
         window.close();        
     },
 

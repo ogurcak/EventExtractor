@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 
 
-public class VCalendar {
+public class ICalendar {
 
 	  protected String name = null;
 	  protected String place = null;
@@ -23,13 +23,13 @@ public class VCalendar {
 	  protected Calendar dateFrom = null;
 	  protected Calendar dateTo = null;
 
-	  private static Logger logger = Logger.getLogger(VCalendar.class.getName());
+	  private static Logger logger = Logger.getLogger(ICalendar.class.getName());
 
 
 
 
 
-	  public static boolean isVCalendar(String message) {
+	  public static boolean isICalendar(String message) {
 
 		    if (message.contains("BEGIN:VCALENDAR")) if (message.contains("BEGIN:VEVENT")) if (message.contains("END:VCALENDAR")) if (message.contains("END:VEVENT")) return true;
 		    return false;

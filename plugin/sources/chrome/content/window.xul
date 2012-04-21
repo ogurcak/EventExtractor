@@ -3,7 +3,7 @@
 
 
 
-<window id="rootWnd" title="Event Extractor" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<window id="rootWnd" title="Event Extractor" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" onload="eventextractor.getEventData();">
         
         <script src="genOverlay.js" type="application/x-javascript"/>
         
@@ -79,5 +79,12 @@
          </hbox>
         </vbox>
       </groupbox>
+      
+      <hbox>
+        <label id="space5" value="         "/>
+        <image id="icon1" src='error.gif' width='0' height='0'/>
+        <image id="icon2" src='info.png' width='0' height='0'/>
+        <label value="" id="info_label"/>
+      </hbox>
   </vbox>
 </window>

@@ -3,6 +3,7 @@ package Server;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
@@ -47,8 +48,28 @@ final class Database {
 		    if (stmt != null) {
 			      stmt.executeUpdate(query);
 			      logger.log(Level.INFO, "Saved to database.");
-		    }
-		    else logger.log(Level.WARNING, "Database connection problem.");
+		    } else logger.log(Level.WARNING, "Database connection problem.");
+	  }
+
+
+
+
+
+	  static public void insert(PreparedStatement statment) throws SQLException {
+
+		    if (stmt != null) {
+			      statment.execute();
+			      logger.log(Level.INFO, "Saved to database.");
+		    } else logger.log(Level.WARNING, "Database connection problem.");
+	  }
+
+
+
+
+
+	  static public Connection getConnection() {
+
+		    return conn;
 	  }
 
 }

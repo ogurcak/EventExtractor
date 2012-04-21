@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.net.Socket;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import Extractor.Event;
-import Extractor.VCalendar;
+import Extractor.ICalendar;
 
 
 
@@ -37,7 +38,7 @@ public class HTTPServer extends Thread {
 	  private BufferedReader incoming = null;
 	  private DataOutputStream outgoing = null;
 
-	  private String currentVersion = "2.1";
+	  private String currentVersion = "2.2";
 
 	  private static Logger logger = Logger.getLogger(HTTPServer.class.getName());
 
@@ -141,15 +142,15 @@ public class HTTPServer extends Thread {
 							    throw (new Exception("Extraction method \"" + extractionMethod + "\" doesnt available."));
 						  }
 
-						  if (VCalendar.isVCalendar(message)) {
-							    VCalendar vcal = new VCalendar();
-							    vcal.parse(message);
+						  if (ICalendar.isICalendar(message)) {
+							    ICalendar ical = new ICalendar();
+							    ical.parse(message);
 
-							    if (vcal.getName() != null) event.addName(vcal.getName());
-							    if (vcal.getPlace() != null) event.addPlace(vcal.getPlace());
-							    if (vcal.getDescription() != null) event.setDescription(vcal.getDescription());
-							    if (vcal.getDateFrom() != null) event.addDateFrom(vcal.getDateFrom());
-							    if (vcal.getDateTo() != null) event.addDateTo(vcal.getDateTo());
+							    if (ical.getName() != null) event.addName(ical.getName());
+							    if (ical.getPlace() != null) event.addPlace(ical.getPlace());
+							    if (ical.getDescription() != null) event.setDescription(ical.getDescription());
+							    if (ical.getDateFrom() != null) event.addDateFrom(ical.getDateFrom());
+							    if (ical.getDateTo() != null) event.addDateTo(ical.getDateTo());
 						  } else {
 							    event.parseMessage(message);
 							    event.analyzeMessage();
@@ -161,7 +162,7 @@ public class HTTPServer extends Thread {
 
 						  JSONArray names = new JSONArray();
 						  if (event.getNames().size() > 0) for (String name : event.getNames()) {
-							    if (names.length() > 5) break;
+							    if (names.length() >= 5) break;
 							    boolean equal = false;
 							    for (int i = 0; i < names.length(); i++)
 								      if (names.getString(i).equalsIgnoreCase(name)) equal = true;
@@ -171,7 +172,7 @@ public class HTTPServer extends Thread {
 
 						  JSONArray places = new JSONArray();
 						  if (event.getPlaces().size() > 0) for (String place : event.getPlaces()) {
-							    if (places.length() > 5) break;
+							    if (places.length() >= 5) break;
 							    boolean equal = false;
 							    for (int i = 0; i < places.length(); i++)
 								      if (places.getString(i).equalsIgnoreCase(place)) equal = true;
@@ -182,7 +183,7 @@ public class HTTPServer extends Thread {
 
 						  JSONArray datesFrom = new JSONArray();
 						  if (event.getDatesFrom().size() > 0) for (Calendar time : event.getDatesFrom()) {
-							    if (datesFrom.length() > 5) break;
+							    if (datesFrom.length() >= 5) break;
 							    boolean equal = false;
 							    for (int i = 0; i < datesFrom.length(); i++)
 								      if (datesFrom.getString(i).equalsIgnoreCase(sdf.format(time.getTime()))) equal = true;
@@ -192,7 +193,7 @@ public class HTTPServer extends Thread {
 
 						  JSONArray datesTo = new JSONArray();
 						  if (event.getDatesTo().size() > 0) for (Calendar time : event.getDatesTo()) {
-							    if (datesTo.length() > 5) break;
+							    if (datesTo.length() >= 5) break;
 							    boolean equal = false;
 							    for (int i = 0; i < datesTo.length(); i++)
 								      if (datesTo.getString(i).equalsIgnoreCase(sdf.format(time.getTime()))) equal = true;
@@ -204,7 +205,7 @@ public class HTTPServer extends Thread {
 
 						  JSONArray timesFrom = new JSONArray();
 						  if (event.getDatesFrom().size() > 0) for (Calendar time : event.getDatesFrom()) {
-							    if (timesFrom.length() > 5) break;
+							    if (timesFrom.length() >= 5) break;
 							    boolean equal = false;
 							    for (int i = 0; i < timesFrom.length(); i++)
 								      if (timesFrom.getString(i).equalsIgnoreCase(sdf.format(time.getTime()))) equal = true;
@@ -215,7 +216,7 @@ public class HTTPServer extends Thread {
 
 						  JSONArray timesTo = new JSONArray();
 						  if (event.getDatesTo().size() > 0) for (Calendar time : event.getDatesTo()) {
-							    if (timesTo.length() > 5) break;
+							    if (timesTo.length() >= 5) break;
 							    boolean equal = false;
 							    for (int i = 0; i < timesTo.length(); i++)
 								      if (timesTo.getString(i).equalsIgnoreCase(sdf.format(time.getTime()))) equal = true;
@@ -278,9 +279,8 @@ public class HTTPServer extends Thread {
 
 
 
-	  
 	  @SuppressWarnings({ "rawtypes", "unchecked" })
-          private void getImplementatios() {
+	  private void getImplementatios() {
 
 		    final FileFilter filter = new FileFilter() {
 
@@ -289,13 +289,13 @@ public class HTTPServer extends Thread {
 					return pathname.getName().endsWith(".jar");
 			      }
 		    };
-		    
+
 		    File file = new File("extraction_methods");
 		    List<File> jars = new ArrayList<File>();
 
-		    for (File f : file.listFiles(filter)) 
-			      jars.add(f);		    
-		    
+		    for (File f : file.listFiles(filter))
+			      jars.add(f);
+
 		    List<String> foundClasses = new ArrayList<>();
 		    for (File f : jars) {
 			      JarFile jar;
@@ -413,89 +413,55 @@ public class HTTPServer extends Thread {
 
 			      String received_description = received.getString("Description");
 
-			      String qry = "INSERT INTO dbo.EventExtractor (mail, version, extraction_method, calendar_name, sended_name, sended_place, sended_dateFrom, sended_timeFrom, sended_dateTo, sended_timeTo, sended_description, received_name_1, received_name_2, received_name_3, received_name_4, received_name_5, received_place_1, received_place_2, received_place_3, received_place_4, received_place_5, received_dateFrom_1, received_dateFrom_2, received_dateFrom_3, received_dateFrom_4, received_dateFrom_5, received_description, received_timeFrom_1, received_timeFrom_2, received_timeFrom_3, received_timeFrom_4, received_timeFrom_5, received_dateTo_1, received_dateTo_2, received_dateTo_3, received_dateTo_4, received_dateTo_5, received_timeTo_1, received_timeTo_2, received_timeTo_3, received_timeTo_4, received_timeTo_5) VALUES ('"
-				                  + received_message
-				                  + "','"
-				                  + received_version
-				                  + "','"
-				                  + received_method
-				                  + "','"
-				                  + received_calendar
-				                  + "','"
-				                  + sended_name
-				                  + "','"
-				                  + sended_place
-				                  + "','"
-				                  + sended_dateFrom
-				                  + "','"
-				                  + sended_timeFrom
-				                  + "','"
-				                  + sended_dateTo
-				                  + "','"
-				                  + sended_timeTo
-				                  + "','"
-				                  + sended_description
-				                  + "','"
-				                  + received_names.get(0)
-				                  + "','"
-				                  + received_names.get(1)
-				                  + "','"
-				                  + received_names.get(2)
-				                  + "','"
-				                  + received_names.get(3)
-				                  + "','"
-				                  + received_names.get(4)
-				                  + "','"
-				                  + received_places.get(0)
-				                  + "','"
-				                  + received_places.get(1)
-				                  + "','"
-				                  + received_places.get(2)
-				                  + "','"
-				                  + received_places.get(3)
-				                  + "','"
-				                  + received_places.get(4)
-				                  + "','"
-				                  + received_dateFroms.get(0)
-				                  + "','"
-				                  + received_dateFroms.get(1)
-				                  + "','"
-				                  + received_dateFroms.get(2)
-				                  + "','"
-				                  + received_dateFroms.get(3)
-				                  + "','"
-				                  + received_dateFroms.get(4)
-				                  + "','"
-				                  + received_description
-				                  + "','"
-				                  + received_timeFroms.get(0)
-				                  + "','"
-				                  + received_timeFroms.get(1)
-				                  + "','"
-				                  + received_timeFroms.get(2)
-				                  + "','"
-				                  + received_timeFroms.get(3)
-				                  + "','"
-				                  + received_timeFroms.get(4)
-				                  + "','"
-				                  + received_dateTos.get(0)
-				                  + "','"
-				                  + received_dateTos.get(1)
-				                  + "','"
-				                  + received_dateTos.get(2)
-				                  + "','"
-				                  + received_dateTos.get(3)
-				                  + "','"
-				                  + received_dateTos.get(4)
-				                  + "','"
-				                  + received_timeTos.get(0)
-				                  + "','"
-				                  + received_timeTos.get(1)
-				                  + "','"
-				                  + received_timeTos.get(2) + "','" + received_timeTos.get(3) + "','" + received_timeTos.get(4) + "');";
 
 			      try {
-					Database.insert(qry);
+					PreparedStatement preparedStmt = Database
+					                    .getConnection()
+					                    .prepareStatement("INSERT INTO dbo.EventExtractor (mail, version, extraction_method, calendar_name, sended_name, sended_place, sended_dateFrom, sended_timeFrom, sended_dateTo, sended_timeTo, sended_description, received_name_1, received_name_2, received_name_3, received_name_4, received_name_5, received_place_1, received_place_2, received_place_3, received_place_4, received_place_5, received_dateFrom_1, received_dateFrom_2, received_dateFrom_3, received_dateFrom_4, received_dateFrom_5, received_description, received_timeFrom_1, received_timeFrom_2, received_timeFrom_3, received_timeFrom_4, received_timeFrom_5, received_dateTo_1, received_dateTo_2, received_dateTo_3, received_dateTo_4, received_dateTo_5, received_timeTo_1, received_timeTo_2, received_timeTo_3, received_timeTo_4, received_timeTo_5) VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+					preparedStmt.setString(1, received_message);
+					preparedStmt.setString(2, received_version);
+					preparedStmt.setString(3, received_method);
+					preparedStmt.setString(4, received_calendar);
+					preparedStmt.setString(5, sended_name);
+					preparedStmt.setString(6, sended_place);
+					preparedStmt.setString(7, sended_dateFrom);
+					preparedStmt.setString(8, sended_timeFrom);
+					preparedStmt.setString(9, sended_dateTo);
+					preparedStmt.setString(10, sended_timeTo);
+					preparedStmt.setString(11, sended_description);
+					preparedStmt.setString(12, received_names.get(0));
+					preparedStmt.setString(13, received_names.get(1));
+					preparedStmt.setString(14, received_names.get(2));
+					preparedStmt.setString(15, received_names.get(3));
+					preparedStmt.setString(16, received_names.get(4));
+					preparedStmt.setString(17, received_places.get(0));
+					preparedStmt.setString(18, received_places.get(1));
+					preparedStmt.setString(19, received_places.get(2));
+					preparedStmt.setString(20, received_places.get(3));
+					preparedStmt.setString(21, received_places.get(4));
+					preparedStmt.setString(22, received_dateFroms.get(0));
+					preparedStmt.setString(23, received_dateFroms.get(1));
+					preparedStmt.setString(24, received_dateFroms.get(2));
+					preparedStmt.setString(25, received_dateFroms.get(3));
+					preparedStmt.setString(26, received_dateFroms.get(4));
+					preparedStmt.setString(27, received_description);
+					preparedStmt.setString(28, received_timeFroms.get(0));
+					preparedStmt.setString(29, received_timeFroms.get(1));
+					preparedStmt.setString(30, received_timeFroms.get(2));
+					preparedStmt.setString(31, received_timeFroms.get(3));
+					preparedStmt.setString(32, received_timeFroms.get(4));
+					preparedStmt.setString(33, received_dateTos.get(0));
+					preparedStmt.setString(34, received_dateTos.get(1));
+					preparedStmt.setString(35, received_dateTos.get(2));
+					preparedStmt.setString(36, received_dateTos.get(3));
+					preparedStmt.setString(37, received_dateTos.get(4));
+					preparedStmt.setString(38, received_timeTos.get(0));
+					preparedStmt.setString(39, received_timeTos.get(1));
+					preparedStmt.setString(40, received_timeTos.get(2));
+					preparedStmt.setString(41, received_timeTos.get(3));
+					preparedStmt.setString(42, received_timeTos.get(4));
+
+					Database.insert(preparedStmt);
 					sendResponse(200, "Data saved into database.");
 			      } catch (SQLException e) {
 					logger.log(Level.WARNING, e.getMessage() + " :Database insertion problem.");
