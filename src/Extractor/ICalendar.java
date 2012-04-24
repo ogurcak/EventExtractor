@@ -14,8 +14,12 @@ import java.util.regex.Pattern;
 
 
 
-
-public class ICalendar {
+/**
+ * 
+ * @author FiLoPo
+ *
+ */
+final public class ICalendar {
 
 	  protected String name = null;
 	  protected String place = null;
@@ -28,7 +32,11 @@ public class ICalendar {
 
 
 
-
+/**
+ * 
+ * @param message
+ * @return
+ */
 	  public static boolean isICalendar(String message) {
 
 		    if (message.contains("BEGIN:VCALENDAR")) if (message.contains("BEGIN:VEVENT")) if (message.contains("END:VCALENDAR")) if (message.contains("END:VEVENT")) return true;
@@ -38,7 +46,10 @@ public class ICalendar {
 
 
 
-
+/**
+ * 
+ * @param message
+ */
 	  public void parse(String message) {
 
 		    Pattern namePatern = Pattern.compile("^SUMMARY:.*?$", Pattern.MULTILINE);
@@ -95,7 +106,10 @@ public class ICalendar {
 
 
 
-
+/**
+ * 
+ * @return
+ */
 	  public String getName() {
 
 		    return this.name;
@@ -104,7 +118,10 @@ public class ICalendar {
 
 
 
-
+/**
+ * 
+ * @return
+ */
 	  public Calendar getDateFrom() {
 
 		    return this.dateFrom;
@@ -113,7 +130,10 @@ public class ICalendar {
 
 
 
-
+/**
+ * 
+ * @return
+ */
 	  public Calendar getDateTo() {
 
 		    return this.dateTo;
@@ -122,7 +142,10 @@ public class ICalendar {
 
 
 
-
+/**
+ * 
+ * @return
+ */
 	  public String getPlace() {
 
 		    return this.place;
@@ -131,7 +154,10 @@ public class ICalendar {
 
 
 
-
+/**
+ * 
+ * @return
+ */
 	  public String getDescription() {
 
 		    return this.description;

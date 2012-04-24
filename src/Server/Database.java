@@ -12,9 +12,14 @@ import java.util.logging.Logger;
 
 
 
-final class Database {
+/**
+ * 
+ * @author FiLoPo
+ * 
+ */
+final public class Database {
 
-	  private static String connect_string = "jdbc:sqlserver://shadowstreet.no-ip.org;database=EEDB";
+	  private static String connect_string = "jdbc:sqlserver://localhost;database=EEDB";
 	  private static String userid = "fogurcak";
 	  private static String password = "heslodb123";
 
@@ -27,6 +32,9 @@ final class Database {
 
 
 
+	  /**
+ * 
+ */
 	  static public void connect() {
 
 		    try {
@@ -43,8 +51,17 @@ final class Database {
 
 
 
+	  /**
+	   * 
+	   * @param query
+	   * @throws SQLException
+	   */
 	  static public void insert(String query) throws SQLException {
 
+		    if (stmt.getConnection().isClosed()) {
+			      connect();
+			      logger.log(Level.INFO, "Database reconnected.");
+		    }
 		    if (stmt != null) {
 			      stmt.executeUpdate(query);
 			      logger.log(Level.INFO, "Saved to database.");
@@ -55,6 +72,11 @@ final class Database {
 
 
 
+	  /**
+	   * 
+	   * @param statment
+	   * @throws SQLException
+	   */
 	  static public void insert(PreparedStatement statment) throws SQLException {
 
 		    if (stmt != null) {
@@ -67,6 +89,10 @@ final class Database {
 
 
 
+	  /**
+	   * 
+	   * @return
+	   */
 	  static public Connection getConnection() {
 
 		    return conn;

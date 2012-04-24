@@ -32,6 +32,11 @@ import Extractor.ICalendar;
 
 
 
+/**
+ * 
+ * @author FiLoPo
+ * 
+ */
 public class HTTPServer extends Thread {
 
 	  private Socket connection = null;
@@ -46,6 +51,10 @@ public class HTTPServer extends Thread {
 
 
 
+	  /**
+	   * 
+	   * @param connection
+	   */
 	  public HTTPServer(Socket connection) {
 
 		    this.connection = connection;
@@ -55,6 +64,9 @@ public class HTTPServer extends Thread {
 
 
 
+	  /**
+ * 
+ */
 	  public void run() {
 
 		    try {
@@ -260,7 +272,6 @@ public class HTTPServer extends Thread {
 					logger.log(Level.INFO, "Client send GET request.");
 					while (incoming.ready())
 						  logger.log(Level.INFO, incoming.readLine());
-					incoming.close();
 
 					String responseString = "Error: GET request doesnt available.\r\n";
 					sendResponse(404, responseString);
@@ -343,16 +354,16 @@ public class HTTPServer extends Thread {
 
 	  private void saveToDatabase() {
 
-		    String message = null;
-		    try {
-			      message = incoming.readLine() + "\n";
 
+		    try {
+			      String line;
+			      String message = "";
 			      while (incoming.ready()) {
-					message = message.concat(incoming.readLine());
+					line = incoming.readLine();
+					message = message.concat(line);
 					message = message.concat("\n");
 			      }
 
-			      incoming.close();
 			      logger.log(Level.INFO, message); // message
 
 
