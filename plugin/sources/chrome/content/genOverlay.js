@@ -41,7 +41,7 @@ var eventextractor = {
             
         } 
         else
-            eventextractor.showError("Unexpected error. Try again later.");
+            eventextractor.showError(request.responseText);
         
     },
     
@@ -59,7 +59,7 @@ var eventextractor = {
             
         var request = new XMLHttpRequest();
         request.open('POST', 'https://www.googleapis.com/o/oauth2/token', false);   
-        request.setRequestHeader('Host', 'accounts.google.com');
+        request.setRequestHeader('Host', 'accounts..com');
         request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');        
         request.send("client_id=256241156366.apps.googleusercontent.com&client_secret=khNMF3Ph3idOf4uSfp4ECGPM&refresh_token="+refresh_token+"&grant_type=refresh_token");
        
@@ -75,7 +75,7 @@ var eventextractor = {
         else
             //obnova neprebehla korektne, je potrebna autorizacia
             eventextractor.showError("Authorization required. Try again after authorization.");  
-            this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=210,chrome=yes');
+            this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes');
         
     },
     
@@ -139,14 +139,12 @@ var eventextractor = {
                 subkey.close();
                 wrk.close();
                 eventextractor.showError("Authorization required. Try again after authorization.");
-                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=210,chrome=yes');
+                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes');
             } 
         
         } else {
-                subkey.close();
                 wrk.close();
                 eventextractor.showError("Authorization required. Try again after authorization.");
-                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=210,chrome=yes');
             }        
      },
      
@@ -251,10 +249,10 @@ var eventextractor = {
                     } else {
                         wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
                         wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
-                        wrk.writeStringValue("Server", "http://127.0.0.1:5000");
+                        wrk.writeStringValue("Server", "http://shadowstreet.no-ip.org:5000");
                         wrk.close(); 
             
-                        server = "http://127.0.0.1:5000";
+                        server = "http://shadowstreet.no-ip.org:5000";
                         extractionMethod = "Extractor.EventRegex";
                     }
                     
@@ -295,7 +293,7 @@ var eventextractor = {
             
         
         } else {
-                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=210,chrome=yes'); 
+                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes'); 
             
         }
         
@@ -377,10 +375,10 @@ var eventextractor = {
         } else {
             wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
             wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
-            wrk.writeStringValue("Server", "http://127.0.0.1:5000");
+            wrk.writeStringValue("Server", "http://shadowstreet.no-ip.org:5000");
             wrk.close(); 
             
-            server = "http://127.0.0.1:5000";
+            server = "http://shadowstreet.no-ip.org:5000";
             extractionMethod = "Extractor.EventRegex";
         }
         
@@ -603,7 +601,7 @@ var options = {
         } else {
             wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
             wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
-            wrk.writeStringValue("Server", "http://127.0.0.1:5000");
+            wrk.writeStringValue("Server", "http://shadowstreet.no-ip.org:5000");
             wrk.close(); 
             
             options.readData();       
@@ -633,8 +631,7 @@ var options = {
         wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
         if (wrk.hasChild("Mozilla\\Thunderbird"))
              wrk.removeChild("Mozilla\\Thunderbird");
-        
-        alert("Registers successfully cleaned.");        
+               
         window.close();        
     },
 

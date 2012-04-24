@@ -17,7 +17,7 @@
   <!-- X keyset -->
     <key
         id="eventextractor-key-find" 
-        key="G" 
+        key="E" 
         command="eventextractor-command-find"/>
   
   <!-- X Tools menu -->

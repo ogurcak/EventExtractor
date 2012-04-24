@@ -38,5 +38,12 @@
         </vbox>
     </groupbox>
     
+    <hbox>
+        <label id="space5" value="         "/>
+        <image id="icon1" src='error.gif' width='0' height='0'/>
+        <image id="icon2" src='info.png' width='0' height='0'/>
+        <label value="" id="info_label"/>
+      </hbox>
+    
   </vbox>
 </window>

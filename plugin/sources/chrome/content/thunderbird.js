@@ -5,7 +5,7 @@ var ThunderbirdApp = {
   
   OpenURL: function (agrs)
   {
-        alert("ahoj");
+        
   },
 
  
