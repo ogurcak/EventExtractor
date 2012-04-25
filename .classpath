@@ -5,7 +5,6 @@
 	<classpathentry kind="lib" path="lib/sqljdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="lib" path="lib/mail.jar" sourcepath="lib/mail.jar"/>
-	<classpathentry kind="lib" path="extraction_methods/ENextractor.jar"/>
 	<classpathentry kind="lib" path="extraction_methods/EE.jar"/>
 	<classpathentry kind="lib" path="extraction_methods/kosmel.jar"/>
 	<classpathentry kind="lib" path="extraction_methods/kucecka.jar"/>
