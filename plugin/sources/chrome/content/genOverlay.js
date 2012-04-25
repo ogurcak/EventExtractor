@@ -59,7 +59,7 @@ var eventextractor = {
             
         var request = new XMLHttpRequest();
         request.open('POST', 'https://www.googleapis.com/o/oauth2/token', false);   
-        request.setRequestHeader('Host', 'accounts..com');
+        request.setRequestHeader('Host', 'accounts.google.com');
         request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');        
         request.send("client_id=256241156366.apps.googleusercontent.com&client_secret=khNMF3Ph3idOf4uSfp4ECGPM&refresh_token="+refresh_token+"&grant_type=refresh_token");
        
@@ -70,13 +70,14 @@ var eventextractor = {
             var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
             wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
             wrk.writeStringValue("Access_token", access_token);
-            wrk.close();      
+            wrk.close();
+            eventextractor.getCalendarName();                  
         } 
-        else
+        else{
             //obnova neprebehla korektne, je potrebna autorizacia
             eventextractor.showError("Authorization required. Try again after authorization.");  
             this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes');
-        
+        }
     },
     
     
@@ -97,7 +98,6 @@ var eventextractor = {
 
         getCalendarName: function ()
     {      
-        //get access_token
         eventextractor.showInfo("Trying to get your calendar name.");
         var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
         wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
@@ -118,7 +118,7 @@ var eventextractor = {
                
                 if(request.status == "401"){
                     eventextractor.refreshToken();
-                    eventextractor.getCalendarName();              
+                                
                 } else {
                     if(request.status == "200"){         
                         var response = request.responseText.split("\n");
