@@ -135,6 +135,8 @@ public class HTTPServer extends Thread {
 						  // Analyzation Part
 
 						  Event event = null;
+						  
+						  if(extractionMethod==null)extractionMethod = "Extractor.EventRegex";
 
 						  try {
 
