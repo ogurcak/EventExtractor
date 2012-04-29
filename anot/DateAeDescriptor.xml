@@ -28,6 +28,11 @@
               <rangeTypeName>uima.cas.String</rangeTypeName>
             </featureDescription>
             <featureDescription>
+              <name>ParseString</name>
+              <description/>
+              <rangeTypeName>uima.cas.String</rangeTypeName>
+            </featureDescription>
+            <featureDescription>
               <name>Weight</name>
               <description/>
               <rangeTypeName>uima.cas.Integer</rangeTypeName>
@@ -45,6 +50,7 @@
           <type>janovic.fiit.ee.Date</type>
           <feature>janovic.fiit.ee.Date:Weight</feature>
           <feature>janovic.fiit.ee.Date:Context</feature>
+          <feature>janovic.fiit.ee.Date:ParseString</feature>
           <feature>janovic.fiit.ee.Date:Value</feature>
         </outputs>
         <languagesSupported/>
