@@ -14,17 +14,29 @@ import java.util.regex.Pattern;
 
 
 
+
 /**
+ * Class in message detect the presence of iCalendar microformat standard
+ * and then extract data from it.
  * 
- * @author FiLoPo
- *
+ * @author Filip Ogurcak
+ * @version 1.0
  */
 final public class ICalendar {
 
+	  /** Name of event */
 	  protected String name = null;
+
+	  /** Place of event */
 	  protected String place = null;
+
+	  /** Description of event */
 	  protected String description = null;
+
+	  /** Start of event */
 	  protected Calendar dateFrom = null;
+
+	  /** End of event */
 	  protected Calendar dateTo = null;
 
 	  private static Logger logger = Logger.getLogger(ICalendar.class.getName());
@@ -32,11 +44,28 @@ final public class ICalendar {
 
 
 
-/**
- * 
- * @param message
- * @return
- */
+
+	  /**
+	   * Default constructor
+	   */
+	  public ICalendar() {
+
+	  }
+
+
+
+
+
+	  /**
+	   * Detect the presence of iCalendar microformat and return true if
+	   * message contains it or false if doesn't.
+	   * 
+	   * @param message
+	   *                  String in witch method detect the presence of
+	   *                  iCalendar microformat
+	   * @return <code>true</code> if message contains iCalendar microformat
+	   *         or <code>false</code> if doesn't.
+	   */
 	  public static boolean isICalendar(String message) {
 
 		    if (message.contains("BEGIN:VCALENDAR")) if (message.contains("BEGIN:VEVENT")) if (message.contains("END:VCALENDAR")) if (message.contains("END:VEVENT")) return true;
@@ -46,10 +75,14 @@ final public class ICalendar {
 
 
 
-/**
- * 
- * @param message
- */
+
+	  /**
+	   * Parse iCalendar microformat present in message and set fields.
+	   * 
+	   * @param message
+	   *                  String in witch method detected the presence of
+	   *                  iCalendar microformat
+	   */
 	  public void parse(String message) {
 
 		    Pattern namePatern = Pattern.compile("^SUMMARY:.*?$", Pattern.MULTILINE);
@@ -106,10 +139,12 @@ final public class ICalendar {
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get event name extracted from iCalendar.
+	   * 
+	   * @return name of the event
+	   */
 	  public String getName() {
 
 		    return this.name;
@@ -118,10 +153,12 @@ final public class ICalendar {
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get start of event extracted from iCalendar.
+	   * 
+	   * @return start of the event
+	   */
 	  public Calendar getDateFrom() {
 
 		    return this.dateFrom;
@@ -130,10 +167,12 @@ final public class ICalendar {
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get end of event extracted from iCalendar.
+	   * 
+	   * @return end of the event
+	   */
 	  public Calendar getDateTo() {
 
 		    return this.dateTo;
@@ -142,10 +181,12 @@ final public class ICalendar {
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get event place extracted from iCalendar.
+	   * 
+	   * @return place of the event
+	   */
 	  public String getPlace() {
 
 		    return this.place;
@@ -154,10 +195,12 @@ final public class ICalendar {
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get event description extracted from iCalendar.
+	   * 
+	   * @return description of the event
+	   */
 	  public String getDescription() {
 
 		    return this.description;

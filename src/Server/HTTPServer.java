@@ -33,9 +33,14 @@ import Extractor.ICalendar;
 
 
 /**
+ * Main part of server part of application. Provides communication with client
+ * part, analyze requests, send responses and call required methods.
+ * <p>
+ * This class extends Java Thread, so every request is analyzed and executed in
+ * separate thread.
  * 
- * @author FiLoPo
- * 
+ * @author Filip Ogurcak
+ * @version 1.0
  */
 public class HTTPServer extends Thread {
 
@@ -52,8 +57,10 @@ public class HTTPServer extends Thread {
 
 
 	  /**
+	   * Default constructor.
 	   * 
 	   * @param connection
+	   *                  Incoming connection from client part
 	   */
 	  public HTTPServer(Socket connection) {
 
@@ -65,8 +72,9 @@ public class HTTPServer extends Thread {
 
 
 	  /**
- * 
- */
+	   * Function starts after incoming request from client part, and in
+	   * separate thread analyze and execute this request.
+	   */
 	  public void run() {
 
 		    try {
@@ -135,8 +143,8 @@ public class HTTPServer extends Thread {
 						  // Analyzation Part
 
 						  Event event = null;
-						  
-						  if(extractionMethod==null)extractionMethod = "Extractor.EventRegex";
+
+						  if (extractionMethod == null) extractionMethod = "Extractor.EventRegex";
 
 						  try {
 

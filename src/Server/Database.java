@@ -13,9 +13,13 @@ import java.util.logging.Logger;
 
 
 /**
+ * Class provides connection with predefined database and allow inserts
+ * data into it.
+ * <p>
+ * Class is made only for this program.
  * 
- * @author FiLoPo
- * 
+ * @author Filip Ogurcak
+ * @version 1.0
  */
 final public class Database {
 
@@ -33,8 +37,19 @@ final public class Database {
 
 
 	  /**
- * 
- */
+	   * Default constructor
+	   */
+	  public Database() {
+
+	  }
+
+
+
+
+
+	  /**
+	   * Function to connect database by predefined path, user and password.
+	   */
 	  static public void connect() {
 
 		    try {
@@ -52,9 +67,13 @@ final public class Database {
 
 
 	  /**
+	   * Insert data to database with query written as string.
 	   * 
 	   * @param query
+	   *                  string with predefined SQL structure
 	   * @throws SQLException
+	   *                   If an exception during insert to database
+	   *                   occurred
 	   */
 	  static public void insert(String query) throws SQLException {
 
@@ -73,14 +92,18 @@ final public class Database {
 
 
 	  /**
+	   * Insert data to database by prepared statement query.
 	   * 
-	   * @param statment
+	   * @param statement
+	   *                  prepared statement
 	   * @throws SQLException
+	   *                   If an exception during insert to database
+	   *                   occurred
 	   */
-	  static public void insert(PreparedStatement statment) throws SQLException {
+	  static public void insert(PreparedStatement statement) throws SQLException {
 
 		    if (stmt != null) {
-			      statment.execute();
+			      statement.execute();
 			      logger.log(Level.INFO, "Saved to database.");
 		    } else logger.log(Level.WARNING, "Database connection problem.");
 	  }
@@ -90,8 +113,10 @@ final public class Database {
 
 
 	  /**
+	   * Return connection to database, or null if connection was't
+	   * established.
 	   * 
-	   * @return
+	   * @return established connection
 	   */
 	  static public Connection getConnection() {
 

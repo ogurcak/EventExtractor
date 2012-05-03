@@ -19,21 +19,34 @@ import javax.mail.internet.MimeMessage;
 
 
 /**
+ * Abstract class designed for making connection with event extraction methods.
+ * Extended is method <i>analyzeMessage()</i>, which call extraction methods and
+ * set all necessary variables.
  * 
  * @author Filip Ogurcak
- * 
+ * @version 1.0
  */
 abstract public class Event {
 
-
+	  /** List of events names extracted from message */
 	  protected List<String> names = new ArrayList<String>();
+
+	  /** List of events places extracted from message */
 	  protected List<String> places = new ArrayList<String>();
+
+	  /** Event description extracted from message */
 	  protected String description = null;
+
+	  /** List of starts of events extracted from message */
 	  protected List<Calendar> datesFrom = new ArrayList<Calendar>();
+
+	  /** List of ends of events extracted from message */
 	  protected List<Calendar> datesTo = new ArrayList<Calendar>();
 
+	  /** Email message in which extraction is performed */
 	  protected MimeMessage message = null;
 
+	  /** Logger used to make logs during program's runtime */
 	  protected static Logger logger = Logger.getLogger(Event.class.getName());
 
 
@@ -52,10 +65,9 @@ abstract public class Event {
 
 
 	  /**
-	   * Constructor with email message.</br> This message must be well
-	   * formated and contains all neccessary parts (sender, receiver, date,
-	   * subject and content), because it's used to extraction, so is
-	   * necessary to have it.
+	   * Constructor with email message represented as String.</br> This
+	   * message must be well formated and contains all necessary parts
+	   * (sender, receiver, date, subject and content).
 	   * <p>
 	   * <i><b>Example of well formated message:</b> </br> From: Filip
 	   * Ogurcak &lt;filip.ogurcak@gmail.com&gt; </br>To:
@@ -67,7 +79,7 @@ abstract public class Event {
 	   * @param message
 	   *                  Represent the well formed headers and content of
 	   *                  email message, from which could be extracted event
-	   *                  data.
+	   *                  data
 	   * @throws MessagingException
 	   *                   when the message is badly formated
 	   */
@@ -88,7 +100,8 @@ abstract public class Event {
 	   * <p>
 	   * 
 	   * @param message
-	   *                  Represent the email message with all headers and content.
+	   *                  Represent the email message with all headers and
+	   *                  content
 	   */
 	  public Event(MimeMessage message) {
 
@@ -98,10 +111,17 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @param message
- */
+
+	  /**
+	   * Set message with specific format of email message.</br> This
+	   * message contains all necessary parts (sender, receiver, date,
+	   * subject and content), so it's easy to use it.
+	   * <p>
+	   * 
+	   * @param message
+	   *                  Represent the email message with all headers and
+	   *                  content
+	   */
 	  public void setMessage(MimeMessage message) {
 
 		    this.message = message;
@@ -110,11 +130,26 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @param message
- * @throws MessagingException
- */
+
+	  /**
+	   * Method convert message saved in String to specific format of email
+	   * message. This message must be well formated and contains all
+	   * necessary parts (sender, receiver, date, subject and content).
+	   * <p>
+	   * <i><b>Example of well formated message:</b> </br> From: Filip
+	   * Ogurcak &lt;filip.ogurcak@gmail.com&gt; </br>To:
+	   * filip.ogurcak@gmail.com </br>Date: 1334571973 </br>Subject: aaa
+	   * </br>Content: The following is the information need for the arch
+	   * set up. If you would like to volunteer to help fill out the
+	   * attachment form* and drop by 1906</i>
+	   * 
+	   * @param message
+	   *                  Represent the well formed headers and content of
+	   *                  email message, from which could be extracted event
+	   *                  data
+	   * @throws MessagingException
+	   *                   when the message is badly formated
+	   */
 	  public void parseMessage(String message) throws MessagingException {
 
 		    String fromAddress = null;
@@ -176,18 +211,22 @@ abstract public class Event {
 
 
 
-/**
- * 
- */
+
+	  /**
+	   * Abstract method designed for extend. After it, this method provides
+	   * all extraction functionality and sets all variables.
+	   */
 	  abstract public void analyzeMessage();
 
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get list of events names extracted from message.
+	   * 
+	   * @return list of events names
+	   */
 	  public List<String> getNames() {
 
 		    return this.names;
@@ -196,10 +235,12 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get list of events starts extracted from message.
+	   * 
+	   * @return list of events starts
+	   */
 	  public List<Calendar> getDatesFrom() {
 
 		    return this.datesFrom;
@@ -208,10 +249,12 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get list of events ends extracted from message.
+	   * 
+	   * @return list of events ends
+	   */
 	  public List<Calendar> getDatesTo() {
 
 		    return this.datesTo;
@@ -220,10 +263,12 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @return
- */
+
+	  /**
+	   * Get list of events places extracted from message.
+	   * 
+	   * @return list of events places
+	   */
 	  public List<String> getPlaces() {
 
 		    return this.places;
@@ -232,10 +277,12 @@ abstract public class Event {
 
 
 
-/**
- * Get the extracted description of event.
- * @return Description of event.
- */
+
+	  /**
+	   * Get event description extracted from message.
+	   * 
+	   * @return Description of event.
+	   */
 	  public String getDescription() {
 
 		    return this.description;
@@ -244,10 +291,13 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @param name
- */
+
+	  /**
+	   * Add name to events names list.
+	   * 
+	   * @param name
+	   *                  name of event
+	   */
 	  public void addName(String name) {
 
 		    this.names.add(name);
@@ -256,10 +306,13 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @param place
- */
+
+	  /**
+	   * Add place to events places list. *
+	   * 
+	   * @param place
+	   *                  place of event
+	   */
 	  public void addPlace(String place) {
 
 		    this.places.add(place);
@@ -268,10 +321,13 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @param description
- */
+
+	  /**
+	   * Set description of event.
+	   * 
+	   * @param description
+	   *                  description of event
+	   */
 	  public void setDescription(String description) {
 
 		    this.description = description;
@@ -280,10 +336,13 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @param dateFrom
- */
+
+	  /**
+	   * Add start to events starts list.
+	   * 
+	   * @param dateFrom
+	   *                  start of event
+	   */
 	  public void addDateFrom(Calendar dateFrom) {
 
 		    this.datesFrom.add(dateFrom);
@@ -292,10 +351,13 @@ abstract public class Event {
 
 
 
-/**
- * 
- * @param dateTo
- */
+
+	  /**
+	   * Add end to events ends list.
+	   * 
+	   * @param dateTo
+	   *                  end of event
+	   */
 	  public void addDateTo(Calendar dateTo) {
 
 		    this.datesTo.add(dateTo);

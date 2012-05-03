@@ -4,7 +4,6 @@ package Server;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -29,7 +28,8 @@ import java.util.logging.Logger;
  * later using in develop application.
  * 
  * <p>
- * This program make the server part of application, and provides the extraction functionality and connection with Thunderbird plugin. 
+ * This program make the server part of application, and provides the extraction
+ * functionality and connection with Thunderbird plugin.
  * 
  * @author Filip Ogurcak
  * @version 1.0
@@ -54,16 +54,15 @@ public class Main {
 
 
 	  /**
-	   * Main method, which starts the program. Firstly initialize from file the
-	   * logger. Then connect database and when everything done, it's
+	   * Main method, which starts the program. Firstly initialize logger
+	   * from file. Then connect database and when everything done, it's
 	   * waiting on specific port to client connection.
 	   * 
 	   * @param args
-	   *                  Program parameters
+	   *                  port number
 	   */
 	  public static void main(String args[]) {
-		    
-		    
+
 
 		    LogManager lm = LogManager.getLogManager();
 
@@ -78,7 +77,7 @@ public class Main {
 
 
 		    ServerSocket Server;
-		    
+
 
 		    try {
 			      Server = new ServerSocket(Integer.parseInt(args[0]), 10, null);
