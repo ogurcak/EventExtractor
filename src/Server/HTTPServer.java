@@ -48,7 +48,7 @@ public class HTTPServer extends Thread {
 	  private BufferedReader incoming = null;
 	  private DataOutputStream outgoing = null;
 
-	  private String currentVersion = "2.2";
+	  private String currentVersion = "2.3";
 
 	  private static Logger logger = Logger.getLogger(HTTPServer.class.getName());
 
@@ -80,7 +80,7 @@ public class HTTPServer extends Thread {
 		    try {
 			      logger.log(Level.INFO, "The Client " + connection.getInetAddress() + ":" + connection.getPort() + " is connected.");
 
-			      incoming = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			      incoming = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 			      outgoing = new DataOutputStream(connection.getOutputStream());
 
 			      String authorization = incoming.readLine();
@@ -105,7 +105,7 @@ public class HTTPServer extends Thread {
 							    httpQueryString = tokenizer.nextToken();
 							    if (!httpQueryString.equals(currentVersion)) {
 								      logger.log(Level.INFO, incomingLine);
-								      sendResponse(400, "Error: A newer version is available.\r\n");
+								      sendResponse(400, "Error: New version available - http://events.email.ui.sav.sk \r\n");
 								      throw (new Exception("Plugin has old version."));
 
 							    }
@@ -317,7 +317,7 @@ public class HTTPServer extends Thread {
 		    for (File f : file.listFiles(filter))
 			      jars.add(f);
 
-		    List<String> foundClasses = new ArrayList<>();
+		    List<String> foundClasses = new ArrayList<String>();
 		    for (File f : jars) {
 			      JarFile jar;
 			      try {
