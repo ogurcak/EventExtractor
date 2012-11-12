@@ -8,7 +8,7 @@ var eventextractor = {
     refresh_token : "none",
     success_code : "none",
     calendar_name : "none",    
-    curent_version : "EventExtractor 2.2",    
+    curent_version : "EventExtractor 2.3",    
     myWindow : null,
     
     
@@ -248,12 +248,12 @@ var eventextractor = {
                         wrk.close();
                     } else {
                         wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-                        wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
-                        wrk.writeStringValue("Server", "http://shadowstreet.no-ip.org:5000");
+                        wrk.writeStringValue("ExtractionMethod", "ogurcak.fiit.SK_extractor");
+                        wrk.writeStringValue("Server", "http://events.email.ui.sav.sk:5000");
                         wrk.close(); 
             
-                        server = "http://shadowstreet.no-ip.org:5000";
-                        extractionMethod = "Extractor.EventRegex";
+                        server = "http://events.email.ui.sav.sk:5000";
+                        extractionMethod = "ogurcak.fiit.SK_extractor";
                     }
                     
                     document.database_Json.version = this.curent_version;
@@ -374,12 +374,12 @@ var eventextractor = {
             wrk.close();
         } else {
             wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
-            wrk.writeStringValue("Server", "http://shadowstreet.no-ip.org:5000");
+            wrk.writeStringValue("ExtractionMethod", "ogurcak.fiit.SK_extractor");
+            wrk.writeStringValue("Server", "http://events.email.ui.sav.sk:5000");
             wrk.close(); 
             
-            server = "http://shadowstreet.no-ip.org:5000";
-            extractionMethod = "Extractor.EventRegex";
+            server = "http://events.email.ui.sav.sk:5000";
+            extractionMethod = "ogurcak.fiit.SK_extractor";
         }
         
         var win = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getMostRecentWindow("mail:3pane");
@@ -398,7 +398,7 @@ var eventextractor = {
         messenger.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
         let folder = selectedMessage.folder;
         
-        messagepane = messagepane.concat("Content: " + folder.getMsgTextFromStream(listener.inputStream, selectedMessage.Charset, 65536, 32768, false, true, { }));
+        messagepane = messagepane.concat("Content: " + folder.getMsgTextFromStream(listener.inputStream, "ISO-8859-2", 65536, 32768, false, true, { }));
         messagepane = messagepane.concat("\n");
         
         eventextractor.showInfo("Waiting for extracted data.");
@@ -407,7 +407,8 @@ var eventextractor = {
         request.open('POST', server, false);   
         request.setRequestHeader('Authorization', this.curent_version);
         request.setRequestHeader('ExtractionMethod', extractionMethod);
-        request.setRequestHeader('Content-Type', 'text/html');
+        request.setRequestHeader('Content-Type', 'text/html;charset=ISO-8859-2');
+
         request.setRequestHeader('Action', 'ANALYZE');
         
         request.send(messagepane);
@@ -600,8 +601,8 @@ var options = {
             
         } else {
             wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("ExtractionMethod", "Extractor.EventRegex");
-            wrk.writeStringValue("Server", "http://shadowstreet.no-ip.org:5000");
+            wrk.writeStringValue("ExtractionMethod", "ogurcak.fiit.SK_extractor");
+            wrk.writeStringValue("Server", "http://events.email.ui.sav.sk:5000");
             wrk.close(); 
             
             options.readData();       
