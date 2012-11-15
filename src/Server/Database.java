@@ -6,8 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 
 
@@ -56,9 +55,9 @@ final public class Database {
 			      conn = DriverManager.getConnection(connect_string, userid, password);
 			      stmt = conn.createStatement();
 
-			      logger.log(Level.INFO, "Database is ready.");
+			      logger.info("Database is ready.");
 		    } catch (SQLException e) {
-			      logger.log(Level.WARNING, e.getMessage() + " :Database connection problem.");
+			      logger.error(e.getMessage() + " :Database connection problem.");
 		    }
 	  }
 
@@ -79,12 +78,12 @@ final public class Database {
 
 		    if (stmt.getConnection().isClosed()) {
 			      connect();
-			      logger.log(Level.INFO, "Database reconnected.");
+			      logger.info("Database reconnected.");
 		    }
 		    if (stmt != null) {
 			      stmt.executeUpdate(query);
-			      logger.log(Level.INFO, "Saved to database.");
-		    } else logger.log(Level.WARNING, "Database connection problem.");
+			      logger.info("Saved to database.");
+		    } else logger.error("Database connection problem.");
 	  }
 
 
@@ -104,8 +103,8 @@ final public class Database {
 
 		    if (stmt != null) {
 			      statement.execute();
-			      logger.log(Level.INFO, "Saved to database.");
-		    } else logger.log(Level.WARNING, "Database connection problem.");
+			      logger.info("Saved to database.");
+		    } else logger.error("Database connection problem.");
 	  }
 
 

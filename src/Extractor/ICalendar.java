@@ -7,8 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -111,7 +110,7 @@ final public class ICalendar {
 			      try {
 					date = (Date) formatter.parse(matcher.group().replace("DTSTART:", "").replace("T", "").replace("Z", ""));
 			      } catch (ParseException e) {
-					logger.log(Level.SEVERE, e.getMessage());
+					logger.error(e.getMessage());
 			      }
 			      dateFrom = GregorianCalendar.getInstance();
 			      dateFrom.setTime(date);
@@ -127,7 +126,7 @@ final public class ICalendar {
 			      try {
 					date = (Date) formatter.parse(matcher.group().replace("DTEND:", "").replace("T", "").replace("Z", ""));
 			      } catch (ParseException e) {
-					logger.log(Level.SEVERE, e.getMessage());
+					logger.error(e.getMessage());
 			      }
 			      dateTo = GregorianCalendar.getInstance();
 			      dateTo.setTime(date);

@@ -18,8 +18,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,7 +77,7 @@ public class HTTPServer extends Thread {
 	  public void run() {
 
 		    try {
-			      logger.log(Level.INFO, "The Client " + connection.getInetAddress() + ":" + connection.getPort() + " is connected.");
+			      logger.info("The Client " + connection.getInetAddress() + ":" + connection.getPort() + " is connected.");
 
 			      incoming = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 			      outgoing = new DataOutputStream(connection.getOutputStream());
@@ -89,7 +88,7 @@ public class HTTPServer extends Thread {
 			      String httpQueryString = tokenizer.nextToken();
 
 			      if (httpMethod.equals("POST")) {
-					logger.log(Level.INFO, "Client send POST request:");
+					logger.info( "Client send POST request:");
 
 					String extractionMethod = null;
 					String action = null;
@@ -104,7 +103,7 @@ public class HTTPServer extends Thread {
 							    httpQueryString = tokenizer.nextToken();
 							    httpQueryString = tokenizer.nextToken();
 							    if (!httpQueryString.equals(currentVersion)) {
-								      logger.log(Level.INFO, incomingLine);
+								      logger.info(incomingLine);
 								      sendResponse(400, "Error: New version available - http://events.email.ui.sav.sk \r\n");
 								      throw (new Exception("Plugin has old version."));
 
@@ -138,7 +137,7 @@ public class HTTPServer extends Thread {
 
 
 						  incomingLine = incomingLine.concat("\n\n" + message);
-						  logger.log(Level.INFO, incomingLine);
+						  logger.info(incomingLine);
 
 						  // Analyzation Part
 
@@ -153,14 +152,14 @@ public class HTTPServer extends Thread {
 
 							    if (c2.getSuperclass() != Event.class) {
 								      sendResponse(404, "Error: Ilegal extraction method \"" + extractionMethod + "\". Select another one.");
-								      logger.log(Level.SEVERE, "Ilegal Extraction method \"" + extractionMethod + "\".");
+								      logger.error("Ilegal Extraction method \"" + extractionMethod + "\".");
 								      throw (new Exception("Ilegal Extraction method \"" + extractionMethod + "\"."));
 							    }
 							    Constructor<Event> ctor = c2.getConstructor();
 							    event = ctor.newInstance();
 						  } catch (ClassNotFoundException e) {
 							    sendResponse(404, "Error: Extraction method \"" + extractionMethod + "\" doesnt available. Select another one.");
-							    logger.log(Level.SEVERE, "Extraction method \"" + extractionMethod + "\" doesnt available.");
+							    logger.error("Extraction method \"" + extractionMethod + "\" doesnt available.");
 							    throw (new Exception("Extraction method \"" + extractionMethod + "\" doesnt available."));
 						  }
 
@@ -262,26 +261,26 @@ public class HTTPServer extends Thread {
 							    // send response
 							    sendResponse(200, JSONobj.toString());
 						  } catch (JSONException e) {
-							    logger.log(Level.SEVERE, e.getMessage() + " :Problem with JSON creation.");
+							    logger.fatal(e.getMessage() + " :Problem with JSON creation.");
 						  }
 
 					}
 					if (action.contains("SAVE")) {
 
-						  logger.log(Level.INFO, incomingLine);
+						  logger.info(incomingLine);
 						  saveToDatabase();
 					}
 					if (action.contains("GET_METHODS")) {
-						  logger.log(Level.INFO, incomingLine);
+						  logger.info(incomingLine);
 						  getImplementatios();
 					}
 
 			      }
 
 			      if (httpMethod.equals("GET")) {
-					logger.log(Level.INFO, "Client send GET request.");
+					logger.info("Client send GET request.");
 					while (incoming.ready())
-						  logger.log(Level.INFO, incoming.readLine());
+						  logger.info(incoming.readLine());
 
 					String responseString = "Error: GET request doesnt available.\r\n";
 					sendResponse(404, responseString);
@@ -290,7 +289,7 @@ public class HTTPServer extends Thread {
 
 
 		    } catch (IOException e) {
-			      logger.log(Level.SEVERE, e.getMessage() + " :Reading from plugin error.");
+			      logger.fatal(e.getMessage() + " :Reading from plugin error.");
 			      sendResponse(404, "problem with reading");
 		    } catch (Exception e) {}
 
@@ -331,12 +330,12 @@ public class HTTPServer extends Thread {
 								      c2 = (Class<Event>) Class.forName(s);
 								      if (c2.getSuperclass() == Event.class) foundClasses.add(s);
 							    } catch (ClassNotFoundException e) {
-								      logger.log(Level.SEVERE, e.getMessage());
+								      logger.fatal(e.getMessage());
 							    }
 						  }
 					}
 			      } catch (IOException e) {
-					logger.log(Level.SEVERE, e.getMessage());
+					logger.fatal(e.getMessage());
 			      }
 		    }
 
@@ -351,7 +350,7 @@ public class HTTPServer extends Thread {
 		    try {
 			      JSONobj.put("Implementations", implementatios);
 		    } catch (JSONException e) {
-			      logger.log(Level.SEVERE, e.getMessage() + " :Problem with JSON creation.");
+			      logger.fatal(e.getMessage() + " :Problem with JSON creation.");
 		    }
 		    sendResponse(200, JSONobj.toString());
 
@@ -374,7 +373,7 @@ public class HTTPServer extends Thread {
 					message = message.concat("\n");
 			      }
 
-			      logger.log(Level.INFO, message); // message
+			      logger.info(message); // message
 
 
 			      JSONObject obj = (JSONObject) new JSONTokener(message).nextValue();
@@ -485,16 +484,16 @@ public class HTTPServer extends Thread {
 					Database.insert(preparedStmt);
 					sendResponse(200, "Data saved into database.");
 			      } catch (SQLException e) {
-					logger.log(Level.WARNING, e.getMessage() + " :Database insertion problem.");
+					logger.error(e.getMessage() + " :Database insertion problem.");
 					sendResponse(404, "Database insertion problem.");
 			      }
 
 
 		    } catch (IOException e) {
-			      logger.log(Level.SEVERE, e.getMessage() + " :Reading from plugin error.");
+			      logger.fatal(e.getMessage() + " :Reading from plugin error.");
 			      sendResponse(404, "problem with reading");
 		    } catch (JSONException e) {
-			      logger.log(Level.SEVERE, e.getMessage() + " :Parsing JSON error.");
+			      logger.fatal(e.getMessage() + " :Parsing JSON error.");
 			      sendResponse(404, "problem with parsing");
 		    }
 
@@ -527,9 +526,9 @@ public class HTTPServer extends Thread {
 
 			      outgoing.close();
 
-			      logger.log(Level.INFO, "Server send response: Status " + status + ": \n" + responseString);
+			      logger.info("Server send response: Status " + status + ": \n" + responseString);
 		    } catch (IOException e) {
-			      logger.log(Level.SEVERE, e.getMessage() + ":Problem with sending to plugin.");
+			      logger.info(e.getMessage() + ":Problem with sending to plugin.");
 		    }
 
 

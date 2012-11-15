@@ -1,15 +1,13 @@
 package Server;
 
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
+
 
 
 
@@ -64,15 +62,6 @@ public class Main {
 	  public static void main(String args[]) {
 
 
-		    LogManager lm = LogManager.getLogManager();
-
-		    try {
-			      InputStream is = new FileInputStream("LogManager.txt");
-			      lm.readConfiguration(is);
-		    } catch (Exception e) {
-			      System.err.println("Error: Logging failed!!" + e.getMessage());
-		    }
-
 		    Database.connect();
 
 
@@ -81,17 +70,17 @@ public class Main {
 
 		    try {
 			      Server = new ServerSocket(Integer.parseInt(args[0]), 10, null);
-			      logger.log(Level.INFO, "Server is ready and waiting for client request.");
+			      logger.info("Server is ready and waiting for client request.");
 
 			      while (true) {
 					Socket connection = Server.accept();
-					logger.log(Level.INFO, "Client is trying to connect server.");
+					logger.info("Client is trying to connect server.");
 					(new HTTPServer(connection)).start();
 			      }
 		    } catch (UnknownHostException e) {
-			      logger.log(Level.SEVERE, e.getMessage() + " :Server socket problem");
+			      logger.error(e.getMessage() + " :Server socket problem");
 		    } catch (IOException e) {
-			      logger.log(Level.SEVERE, e.getMessage() + " :Server socket problem");
+			      logger.error(e.getMessage() + " :Server socket problem");
 		    }
 
 
