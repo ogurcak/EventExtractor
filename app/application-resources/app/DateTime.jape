@@ -1,0 +1,414 @@
+/*
+*  DateTime.jape
+*
+* This file define new rules to GATE to annotate Slovak format dates and languages
+*
+*  Filip Ogurcak, 23 Okt 2012
+* 
+*/
+
+
+Phase:	DateTime
+Input: Token Lookup
+Options: control = appelt
+
+
+
+Macro: ONE_DIGIT
+({Token.kind == number, Token.length == "1"})
+
+
+Macro: TWO_DIGIT
+({Token.kind == number, Token.length == "2"})
+
+
+Macro: DAY_NAME 
+({Lookup.majorType == Day })
+
+
+Macro: TIME_OF_DAY 
+({Lookup.majorType == Time })
+
+
+MACRO: HOUR
+({Token.kind == number, Token.length == "2", Token.string >= "00", Token.string <= "24"} |
+ {Token.kind == number, Token.length == "1", Token.string >= "0", Token.string <= "9"}
+ )
+ 
+ 
+ MACRO: MINUTE
+({Token.string == "00"} | {Token.string == "05"} | 
+ {Token.string == "10"} | {Token.string == "15"} | 
+ {Token.string == "20"} | {Token.string == "25"} | 
+ {Token.string == "30"} | {Token.string == "35"} | 
+ {Token.string == "40"} | {Token.string == "45"} | 
+ {Token.string == "50"} | {Token.string == "55"}
+)
+
+
+MACRO: DAY
+({Token.kind == number, Token.length == "2", Token.string >= "01", Token.string <= "31"} |
+ {Token.kind == number, Token.length == "1", Token.string >= "1", Token.string <= "9"}
+ )
+
+
+MACRO: MONTH
+({Token.kind == number, Token.length == "2", Token.string >= "01", Token.string <= "12"} |
+ {Token.kind == number, Token.length == "1", Token.string >= "1", Token.string <= "9"}
+ )
+ 
+ 
+ Macro: YEAR
+(        
+({Token.kind == number, Token.length == "2", Token.string >= "00", Token.string <= "99"} |
+ {Token.kind == number, Token.length == "4", Token.string >= "1900", Token.string <= "2099"}
+ )
+)
+
+
+
+
+
+Macro: SLASH
+  ({Token.string == "/"})
+  
+Macro: DOT
+  ({Token.string == "."})
+  
+Macro: DASH
+  ({Token.string == "-"})
+
+Macro: OF
+  ({Token.string == "of"})
+  
+Macro: SPACE
+  ({Token.string == " "})
+  
+
+Macro: AD_BC
+	(  {Token.string == "ad"} | {Token.string == "AD"}
+	|
+	  ({Token.string == "a"} {Token.string == "."}
+	   {Token.string == "d"} {Token.string == "."})
+	|
+	  ({Token.string == "A"} {Token.string == "."}
+	   {Token.string == "D"} {Token.string == "."})
+	|
+
+	  {Token.string == "bc"} | {Token.string == "BC"}
+	|
+	  ({Token.string == "b"} {Token.string == "."}
+	   {Token.string == "c"} {Token.string == "."})
+	 
+	|
+ 	  ({Token.string == "B"} {Token.string == "."}
+	   {Token.string == "C"} {Token.string == "."})
+	)
+
+
+
+
+Macro: COMMA
+({Token.string == ","})
+
+
+Macro:  TIME_ZONE
+(({Lookup.minorType == zone})|
+ ({Token.string == "("}
+  {Lookup.minorType == zone}
+  {Token.string == ")"})
+)
+
+
+Macro: TIME_AMPM
+(
+ ({Token.string == "am"}|{Token.string == "pm"})
+)
+
+
+
+
+
+
+
+
+//=======================================================================================================================================
+//=======================================================================================================================================
+//=======================================================================================================================================
+//================================================= RULES ===============================================================================
+//=======================================================================================================================================
+//=======================================================================================================================================
+
+
+
+
+
+Rule:	DateYearDot
+Priority: 80
+// 01.07.00 alebo 1.7.2012  
+(
+ (
+ (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH):MONTH (DOT)+ (YEAR):YEAR)
+ )
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "DateYearDot" DAY = :DAY@string MONTH = :MONTH@string YEAR = :YEAR@string}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Rule:	TimeOfDayDateYearDot
+Priority: 85
+// rano 01.07.00 alebo rano 1.7.2012  
+(  
+ (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY):DAY (DOT)+ (DAY):MONTH (DOT)+ (YEAR):YEAR
+ )
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "TimeOfDayDateYearDot" DAY = :DAY@string MONTH = :MONTH@string YEAR = :YEAR@string TIME = :TIME_OF_DAY.Lookup.minorType}
+
+
+
+
+
+
+
+
+
+
+Rule:	TimeOfDayDateYearDot
+Priority: 85
+// 01.07.00 rano alebo 1.7.2012 rano  
+(
+ (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH):MONTH (DOT)+ (YEAR):YEAR
+  (TIME_OF_DAY):TIME_OF_DAY
+ )
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "TimeOfDayDateYearDot" DAY = :DAY@string MONTH = :MONTH@string YEAR = :YEAR@string TIME = :TIME_OF_DAY.Lookup.minorType}
+
+
+
+
+
+
+
+
+
+
+Rule:	DateDot
+Priority: 70
+// 01.07. alebo 1.7.  
+(
+ ({Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})?
+ (DAY_NAME)? (DAY):DAY (DOT) (MONTH):MONTH 
+ (DOT)
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "DateDot" DAY = :DAY@string MONTH = :MONTH@string} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Rule:	TimeOfDayDateDot
+Priority: 75
+// rano 01.07. alebo rano 1.7. alebo rano 1.7  
+(
+ (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH):MONTH 
+ (DOT)?
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "TimeOfDayDateDot" DAY = :DAY@string MONTH = :MONTH@string TIME = :TIME_OF_DAY.Lookup.minorType} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Rule:	TimeOfDayDateDot
+Priority: 75
+// 01.07. rano alebo 1.7. rano alebo 1.7 rano  
+(
+ (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH):MONTH 
+ (DOT)? (TIME_OF_DAY):TIME_OF_DAY
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "TimeOfDayDateDot" DAY = :DAY@string MONTH = :MONTH@string TIME = :TIME_OF_DAY.Lookup.minorType} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Rule:	WordTimeDot
+Priority: 60
+// o 17.0 ; okolo 17.20  
+(
+(TIME_OF_DAY)?
+({Token.string == "o"} | {Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})
+(HOUR):HOUR
+DOT 
+(MINUTE):MINUTE
+)
+:time
+-->
+ :time.SK_DateTime = {kind = "time" rule = "WordTimeDot" HOUR = :HOUR@string MINUTE = :MINUTE@string}
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+Rule:	TimeDot
+Priority: 10
+// 17.0 ; 17.20  
+(
+(HOUR):HOUR
+DOT 
+(MINUTE):MINUTE
+)
+:time
+-->
+ :time.SK_DateTime = {kind = "time" rule = "TimeDot" HOUR = :HOUR@string MINUTE = :MINUTE@string}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Rule:	DayWordTimeDot
+Priority: 65
+// pondelok o 17.0 ; pondelok okolo 17.20  
+(
+(DAY_NAME):DAY_OF_WEEK
+(TIME_OF_DAY)?
+({Token.string == "o"} | {Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})
+(HOUR):HOUR
+DOT 
+(MINUTE):MINUTE
+)
+:time
+-->
+ :time.SK_DateTime = {kind = "time" rule = "DayWordTimeDot" HOUR = :HOUR@string MINUTE = :MINUTE@string DAY_OF_WEEK = :DAY_OF_WEEK.Lookup.minorType}
+ 
+ 
+
+
+
+
+
+
+
+
+Rule:	DayWordHourOnly
+Priority: 30
+// pondelok o 17 ; pondelok okolo 17  
+(
+(DAY_NAME):DAY_OF_WEEK
+(TIME_OF_DAY)?
+({Token.string == "o"} | {Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})
+(HOUR):HOUR
+)
+:dateTime
+-->
+ :dateTime.SK_DateTime = {kind = "dateTime" rule = "DayWordHourOnly" HOUR = :HOUR@string DAY_OF_WEEK = :DAY_OF_WEEK.Lookup.minorType}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Rule:	DayWordTimeOfDay
+Priority: 30
+// pondelok rano ; utorok v noci  
+(
+(DAY_NAME):DAY_OF_WEEK
+(TIME_OF_DAY):DAY_OF_TIME
+)
+:dateTime
+-->
+ :dateTime.SK_DateTime = {kind = "dateTime" rule = "DayWordTimeOfDay" DAY_OF_WEEK = :DAY_OF_WEEK.Lookup.minorType HOUR = :DAY_OF_TIME.Lookup.minorType}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Rule: TimeDigital1
+// 20:14:25
+(
+ (HOUR):HOUR
+ {Token.string == ":"} 
+ (MINUTE):MINUTE 
+({Token.string == ":"}
+(TWO_DIGIT):SEC
+)? 
+)
+:time
+-->
+:time.SK_DateTime = {kind = "time" rule = "TimeDigital1" HOUR = :HOUR@string MINUTE = :MINUTE@string SEC = :SEC@string}
+
+
+
+
+
+
+
+
+
+
+Rule:	TimeDigital2
+// 8:14 am  4.34 pm  6am
+(
+ (HOUR):HOUR 
+ (({Token.string == ":"}|{Token.string == "."} |{Token.string == "-"} )
+  (MINUTE):MINUTE )?
+ (TIME_AMPM):AMPM
+ (TIME_ZONE)?
+)
+:time
+-->
+:time.SK_DateTime = {kind = "time" rule = "TimeDigital" HOUR = :HOUR@string MINUTE = :MINUTE@string AMPM = :AMPM@string}
+
+
+
+

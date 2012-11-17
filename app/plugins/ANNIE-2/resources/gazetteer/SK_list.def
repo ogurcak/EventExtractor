@@ -1,0 +1,14 @@
+day_monday.lst:Day:2:Slovak:Lookup
+day_tuesday.lst:Day:3:Slovak:Lookup
+day_wednesday.lst:Day:4:Slovak:Lookup
+day_thursday.lst:Day:5:Slovak:Lookup
+day_friday.lst:Day:6:Slovak:Lookup
+day_saturday.lst:Day:7:Slovak:Lookup
+day_sunday.lst:Day:1:Slovak:Lookup
+time_morning.lst:Time:8:Slovak:Lookup
+time_before_lunch.lst:Time:10:Slovak:Lookup
+time_lunch.lst:Time:12:Slovak:Lookup
+time_after_lunch.lst:Time:14:Slovak:Lookup
+time_evening.lst:Time:19:Slovak:Lookup
+time_night.lst:Time:21:Slovak:Lookup
+time_midnight.lst:Time:24:Slovak:Lookup
