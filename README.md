@@ -1,8 +1,5 @@
-[Slovak]
+[Slovak] Event Extractor
 ==============
-
-Event Extractor
---------------
 
 Event Extractor je doplnok do emailového klienta Thunderbird, ktorı je vyvíjanı v rámci bakalárskej a diplomovej práce na Slovenskej technickej univerzite, Fakulte informatiky a informaènıch technológii.
 Hlavnou úlohou doplnku je pritom snaha urıchli proces pridávania schôdzok z emailovej komunikácie do kalendára, prièom vyuívané sú pokroèilé metódy extrakcie udalostí. Pouívate¾ teda nemusí do kalendára údaje prepisova ruène, ale zvolí si z ponúkanıch moností.
@@ -22,8 +19,9 @@ TODO List
 
 
 
-[English]
+[English] Event Extractor
 ==============
+
 ....
 
 **For more info visit:**
