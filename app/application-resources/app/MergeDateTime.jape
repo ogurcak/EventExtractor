@@ -16,11 +16,11 @@ Options: control = appelt
 
 Rule: DateTimeFinal
 Priority: 20
-
 (
- ({SK_DateTime.kind == date})
- ({SK_DateTime.kind == time})
- 
+ (({SK_DateTime.kind == date})
+ ({SK_DateTime.kind == time}))|
+ (({SK_DateTime.kind == time})
+ ({SK_DateTime.kind == date}))
 )
 :DateTime
 -->
@@ -51,14 +51,16 @@ outputAS.removeAll(date);
 
 
 
-Rule: TimeDateFinal
-Priority: 15
 
 
+
+Rule: UncertainDateTimeFinal
+Priority: 10
 (
- ({SK_DateTime.kind == time})
- ({SK_DateTime.kind == date})
- 
+ (({SK_DateTime.kind == uncertain_date})
+ ({SK_DateTime.kind == time}))|
+ (({SK_DateTime.kind == time})
+ ({SK_DateTime.kind == uncertain_date}))
 )
 :DateTime
 -->
@@ -82,7 +84,46 @@ if(dateAnn.getFeatures().get("AddHOUR") != null) features.put("AddHOUR", dateAnn
 if(dateAnn.getFeatures().get("AddMINUTE") != null) features.put("AddMINUTE", dateAnn.getFeatures().get("AddMINUTE"));
 }
 
-features.put("rule", "TimeDateFinal");
+features.put("rule", "UncertainDateTimeFinal");
 outputAS.add(date.firstNode(), date.lastNode(), "SK_DateTime", features);
 outputAS.removeAll(date);
 }
+
+
+
+
+
+
+Rule: UncertainDateTimeFinal
+Priority: 30
+(
+ (({SK_DateTime.kind == uncertain_date}) ({SK_DateTime.kind == date}) ({SK_DateTime.kind == time}))|
+ (({SK_DateTime.kind == uncertain_date}) ({SK_DateTime.kind == time}) ({SK_DateTime.kind == date}))|
+ (({SK_DateTime.kind == date}) ({SK_DateTime.kind == time}) ({SK_DateTime.kind == uncertain_date}))|
+ (({SK_DateTime.kind == time}) ({SK_DateTime.kind == date}) ({SK_DateTime.kind == uncertain_date}))|
+ (({SK_DateTime.kind == date}) ({SK_DateTime.kind == uncertain_date}) ({SK_DateTime.kind == time}))|
+ (({SK_DateTime.kind == time}) ({SK_DateTime.kind == uncertain_date}) ({SK_DateTime.kind == date}))
+)
+:DateTime
+-->
+ {
+//removes TempDate annotation, gets the rule feature and adds a new Date annotation
+gate.AnnotationSet date = (gate.AnnotationSet)bindings.get("DateTime");
+
+gate.FeatureMap features = Factory.newFeatureMap();
+
+for(Annotation dateAnn :date){
+if(dateAnn.getFeatures().get("DAY") != null) features.put("DAY", dateAnn.getFeatures().get("DAY"));
+if(dateAnn.getFeatures().get("MONTH") != null) features.put("MONTH", dateAnn.getFeatures().get("MONTH"));
+if(dateAnn.getFeatures().get("YEAR") != null) features.put("YEAR", dateAnn.getFeatures().get("YEAR"));
+if(dateAnn.getFeatures().get("HOUR") != null) features.put("HOUR", dateAnn.getFeatures().get("HOUR"));
+if(dateAnn.getFeatures().get("MINUTE") != null) features.put("MINUTE", dateAnn.getFeatures().get("MINUTE"));
+if(dateAnn.getFeatures().get("DAY_OF_WEEK") != null) features.put("DAY_OF_WEEK", dateAnn.getFeatures().get("DAY_OF_WEEK"));
+}
+
+features.put("rule", "UncertainDateTimeFinal");
+outputAS.add(date.firstNode(), date.lastNode(), "SK_DateTime", features);
+outputAS.removeAll(date);
+}
+
+

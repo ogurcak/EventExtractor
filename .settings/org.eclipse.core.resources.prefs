@@ -1,4 +1,14 @@
 eclipse.preferences.version=1
+encoding//app/plugins/ANNIE/resources/gazetteer/add_fourteen_days.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_one_day.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_one_month.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_one_year.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_seven_days.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_seven_days_with_date.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_three_days.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_three_months.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_two_days.lst=UTF-8
+encoding//app/plugins/ANNIE/resources/gazetteer/add_two_months.lst=UTF-8
 encoding//app/plugins/ANNIE/resources/gazetteer/month_april.lst=UTF-8
 encoding//app/plugins/ANNIE/resources/gazetteer/month_august.lst=UTF-8
 encoding//app/plugins/ANNIE/resources/gazetteer/month_december.lst=UTF-8

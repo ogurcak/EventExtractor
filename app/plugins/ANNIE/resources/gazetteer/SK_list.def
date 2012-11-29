@@ -24,3 +24,13 @@ month_september.lst:Month:9:Slovak:Lookup
 month_october.lst:Month:10:Slovak:Lookup
 month_november.lst:Month:11:Slovak:Lookup
 month_december.lst:Month:12:Slovak:Lookup
+add_one_day.lst:AddDay:1:Slovak:Lookup
+add_two_days.lst:AddDay:2:Slovak:Lookup
+add_three_days.lst:AddDay:3:Slovak:Lookup
+add_seven_days.lst:AddDay:7:Slovak:Lookup
+add_seven_days_with_date.lst:AddDay_Date:7:Slovak:Lookup
+add_fourteen_days_with_date.lst:AddDay:14:Slovak:Lookup
+add_one_month.lst:AddMonth:1:Slovak:Lookup
+add_two_months.lst:AddMonth:2:Slovak:Lookup
+add_three_months.lst:AddMonth:3:Slovak:Lookup
+add_one_year.lst:AddYear:1:Slovak:Lookup

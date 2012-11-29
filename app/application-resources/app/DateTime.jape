@@ -154,6 +154,7 @@ Priority: 80
 // 01.07.00 alebo 1.7.2012  
 (
  (
+ ({Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})?
  (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH):MONTH (DOT)+ (YEAR):YEAR)
  )
 :date
@@ -169,8 +170,8 @@ Priority: 80
 Priority: 80
 // 01. Januara 12 alebo 1.Januara 2012  
 (
- (
- (DAY_NAME)? (DAY):DAY (DOT)? (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR)
+({Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})?
+ (DAY_NAME)? (DAY):DAY (DOT)? (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR
  )
 :date
 -->
@@ -475,4 +476,62 @@ Priority: 10
 -->
  :date.SK_DateTime = {kind = "date" rule = "DayName" DAY_OF_WEEK = :DAY_OF_WEEK.Lookup.minorType}
  
+ 
+ 
+ 
 
+Rule: UncertainDay
+Priority: 50
+
+(
+  ({Lookup.majorType == AddDay}):DAY
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "uncertain_date" rule = "UncertainDay" AddDAY = :DAY.Lookup.minorType}
+ 
+ 
+ 
+ 
+ 
+ 
+Rule: UncertainDayWithDayName
+Priority: 50
+
+(
+  ({Lookup.majorType == AddDay_Date}):AddDAY
+  (DAY_NAME):DAY
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "uncertain_date" rule = "UncertainDayWithDayName" AddDAY = :AddDAY.Lookup.minorType DAY_OF_WEEK = :DAY.Lookup.minorType}
+ 
+ 
+ 
+ 
+ 
+ 
+Rule: UncertainMonth
+Priority: 50
+
+(
+  ({Lookup.majorType == AddMonth }):MONTH
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "uncertain_date" rule = "UncertainMonth" AddMONTH = :MONTH.Lookup.minorType}
+
+
+
+
+
+
+Rule: UncertainYear
+Priority: 50
+
+(
+  ({Lookup.majorType == AddYear }):YEAR
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "uncertain_date" rule = "UncertainYear" AddYEAR = :YEAR.Lookup.minorType}
