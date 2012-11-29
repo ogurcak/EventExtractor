@@ -12,3 +12,15 @@ time_after_lunch.lst:Time:14:Slovak:Lookup
 time_evening.lst:Time:19:Slovak:Lookup
 time_night.lst:Time:21:Slovak:Lookup
 time_midnight.lst:Time:24:Slovak:Lookup
+month_january.lst:Month:1:Slovak:Lookup
+month_february.lst:Month:2:Slovak:Lookup
+month_march.lst:Month:3:Slovak:Lookup
+month_april.lst:Month:4:Slovak:Lookup
+month_may.lst:Month:5:Slovak:Lookup
+month_june.lst:Month:6:Slovak:Lookup
+month_july.lst:Month:7:Slovak:Lookup
+month_august.lst:Month:8:Slovak:Lookup
+month_september.lst:Month:9:Slovak:Lookup
+month_october.lst:Month:10:Slovak:Lookup
+month_november.lst:Month:11:Slovak:Lookup
+month_december.lst:Month:12:Slovak:Lookup
