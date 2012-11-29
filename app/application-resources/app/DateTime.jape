@@ -26,6 +26,10 @@ Macro: DAY_NAME
 ({Lookup.majorType == Day })
 
 
+MACRO: MONTH_NAME
+({Lookup.majorType == Month })
+
+
 Macro: TIME_OF_DAY 
 ({Lookup.majorType == Time })
 
@@ -55,6 +59,7 @@ MACRO: DAY
 MACRO: MONTH
 ({Token.kind == number, Token.length == "2", Token.string >= "01", Token.string <= "12"} |
  {Token.kind == number, Token.length == "1", Token.string >= "1", Token.string <= "9"}
+ 
  )
  
  
@@ -143,6 +148,7 @@ Macro: TIME_AMPM
 
 
 
+
 Rule:	DateYearDot
 Priority: 80
 // 01.07.00 alebo 1.7.2012  
@@ -159,6 +165,18 @@ Priority: 80
  
  
  
+ Rule:	DateYearDotMonthName
+Priority: 80
+// 01. Januara 12 alebo 1.Januara 2012  
+(
+ (
+ (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR)
+ )
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "DateYearDotMonthName" DAY = :DAY@string MONTH = :MONTH.Lookup.minorType YEAR = :YEAR@string}
+ 
+ 
  
  
  
@@ -167,7 +185,7 @@ Rule:	TimeOfDayDateYearDot
 Priority: 85
 // rano 01.07.00 alebo rano 1.7.2012  
 (  
- (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY):DAY (DOT)+ (DAY):MONTH (DOT)+ (YEAR):YEAR
+ (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY):DAY (DOT)+ (MONTH):MONTH (DOT)+ (YEAR):YEAR
  )
 :date
 -->
@@ -176,6 +194,17 @@ Priority: 85
 
 
 
+
+
+Rule:	TimeOfDayDateYearDotMonthName
+Priority: 85
+// rano 01. Januara 12 alebo rano 1. Januara 2012  
+(  
+ (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY):DAY (DOT)+ (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR
+ )
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "TimeOfDayDateYearDotMonthName" DAY = :DAY@string MONTH = :MONTH.Lookup.minorType YEAR = :YEAR@string TIME = :TIME_OF_DAY.Lookup.minorType}
 
 
 
@@ -198,6 +227,18 @@ Priority: 85
 
 
 
+Rule:	TimeOfDayDateYearDotMonthName
+Priority: 85
+// 01. Januara 12 rano alebo 1. Januara 2012 rano  
+(
+ (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR
+  (TIME_OF_DAY):TIME_OF_DAY
+ )
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "TimeOfDayDateYearDotMonthName" DAY = :DAY@string MONTH = :MONTH.Lookup.minorType YEAR = :YEAR@string TIME = :TIME_OF_DAY.Lookup.minorType}
+
+
 
 
 
@@ -207,8 +248,8 @@ Priority: 70
 // 01.07. alebo 1.7.  
 (
  ({Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})?
- (DAY_NAME)? (DAY):DAY (DOT) (MONTH):MONTH 
- (DOT)
+ (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH):MONTH 
+ (DOT)+
 )
 :date
 -->
@@ -217,6 +258,19 @@ Priority: 70
  
  
  
+ 
+ 
+ Rule:	DateDotMonthName
+Priority: 70
+// od 01. Januara alebo okolo 1. Januara  
+(
+ ({Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})?
+ (DAY_NAME)? (DAY):DAY (DOT) (MONTH_NAME):MONTH 
+ (DOT)?
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "DateDotMonthName" DAY = :DAY@string MONTH = :MONTH.Lookup.minorType} 
  
  
  
@@ -238,11 +292,23 @@ Priority: 75
  
  
  
+  
+ Rule:	TimeOfDayDateDotMonthName
+Priority: 75
+// rano 01. Januara alebo rano 1. Januara 
+(
+ (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH_NAME):MONTH 
+ (DOT)?
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "TimeOfDayDateDotMonthName" DAY = :DAY@string MONTH = :MONTH.Lookup.minorType TIME = :TIME_OF_DAY.Lookup.minorType} 
  
  
  
  
  
+  
 Rule:	TimeOfDayDateDot
 Priority: 75
 // 01.07. rano alebo 1.7. rano alebo 1.7 rano  
@@ -258,11 +324,23 @@ Priority: 75
  
  
  
+  
+ Rule:	TimeOfDayDateDotMonthName
+Priority: 75
+// 01. Januara rano alebo 1. Januara rano
+(
+ (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH):MONTH 
+ (DOT)? (TIME_OF_DAY):TIME_OF_DAY
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "TimeOfDayDateDotMonthName" DAY = :DAY@string MONTH = :MONTH.Lookup.minorType TIME = :TIME_OF_DAY.Lookup.minorType} 
  
  
  
  
  
+  
 Rule:	WordTimeDot
 Priority: 60
 // o 17.0 ; okolo 17.20  
@@ -281,11 +359,7 @@ DOT
  
 
  
- 
- 
- 
- 
- 
+  
 Rule:	TimeDot
 Priority: 10
 // 17.0 ; 17.20  
@@ -302,11 +376,7 @@ DOT
  
  
  
- 
- 
- 
- 
- 
+  
 Rule:	DayWordTimeDot
 Priority: 65
 // pondelok o 17.0 ; pondelok okolo 17.20  
@@ -323,10 +393,6 @@ DOT
  :time.SK_DateTime = {kind = "time" rule = "DayWordTimeDot" HOUR = :HOUR@string MINUTE = :MINUTE@string DAY_OF_WEEK = :DAY_OF_WEEK.Lookup.minorType}
  
  
-
-
-
-
 
 
 
@@ -348,11 +414,7 @@ Priority: 30
  
  
  
- 
- 
- 
- 
- 
+  
 Rule:	DayWordTimeOfDay
 Priority: 30
 // pondelok rano ; utorok v noci  
@@ -368,11 +430,7 @@ Priority: 30
  
  
  
- 
- 
- 
- 
- 
+  
  Rule: TimeDigital1
 // 20:14:25
 (
@@ -386,10 +444,6 @@ Priority: 30
 :time
 -->
 :time.SK_DateTime = {kind = "time" rule = "TimeDigital1" HOUR = :HOUR@string MINUTE = :MINUTE@string SEC = :SEC@string}
-
-
-
-
 
 
 
