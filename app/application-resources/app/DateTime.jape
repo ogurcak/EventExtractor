@@ -170,7 +170,7 @@ Priority: 80
 // 01. Januara 12 alebo 1.Januara 2012  
 (
  (
- (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR)
+ (DAY_NAME)? (DAY):DAY (DOT)? (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR)
  )
 :date
 -->
@@ -200,7 +200,7 @@ Rule:	TimeOfDayDateYearDotMonthName
 Priority: 85
 // rano 01. Januara 12 alebo rano 1. Januara 2012  
 (  
- (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY):DAY (DOT)+ (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR
+ (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY):DAY (DOT)? (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR
  )
 :date
 -->
@@ -231,7 +231,7 @@ Rule:	TimeOfDayDateYearDotMonthName
 Priority: 85
 // 01. Januara 12 rano alebo 1. Januara 2012 rano  
 (
- (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR
+ (DAY_NAME)? (DAY):DAY (DOT)? (MONTH_NAME):MONTH (DOT)? (YEAR):YEAR
   (TIME_OF_DAY):TIME_OF_DAY
  )
 :date
@@ -265,7 +265,7 @@ Priority: 70
 // od 01. Januara alebo okolo 1. Januara  
 (
  ({Token.string == "okolo"} | {Token.string == "od"} | {Token.string == "do"})?
- (DAY_NAME)? (DAY):DAY (DOT) (MONTH_NAME):MONTH 
+ (DAY_NAME)? (DAY):DAY (DOT)? (MONTH_NAME):MONTH 
  (DOT)?
 )
 :date
@@ -297,7 +297,7 @@ Priority: 75
 Priority: 75
 // rano 01. Januara alebo rano 1. Januara 
 (
- (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH_NAME):MONTH 
+ (DAY_NAME)? (TIME_OF_DAY):TIME_OF_DAY (DAY_NAME)? (DAY):DAY (DOT)? (MONTH_NAME):MONTH 
  (DOT)?
 )
 :date
@@ -329,7 +329,7 @@ Priority: 75
 Priority: 75
 // 01. Januara rano alebo 1. Januara rano
 (
- (DAY_NAME)? (DAY):DAY (DOT)+ (MONTH):MONTH 
+ (DAY_NAME)? (DAY):DAY (DOT)? (MONTH):MONTH 
  (DOT)? (TIME_OF_DAY):TIME_OF_DAY
 )
 :date
@@ -465,4 +465,14 @@ Rule:	TimeDigital2
 
 
 
+Rule: DayName
+Priority: 10
+// pondelok, utorok
+(
+(DAY_NAME):DAY_OF_WEEK
+)
+:date
+-->
+ :date.SK_DateTime = {kind = "date" rule = "DayName" DAY_OF_WEEK = :DAY_OF_WEEK.Lookup.minorType}
+ 
 
