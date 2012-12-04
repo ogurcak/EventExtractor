@@ -15,7 +15,7 @@ TODO List
 - prerobenie Thunderbird pluginu
 - pridanie ID k spr·ve a odpovedi z pluginu aby bolo moûnÈ priradiù anot·ciu k spr·ve
 - Log4j logovanie do datab·zy
-- ...
+- pridat tlacitko na oznamenie zlej alebo ziadnej anotacie
 
 
 
@@ -33,7 +33,7 @@ TODO List
 - redesign Thunderbird plugin
 - add ID to message and response to merge anotations
 - Log4j database logging
-- ...
+- add button to send response about bad or none annotation
 
 
 
