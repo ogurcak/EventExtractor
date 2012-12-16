@@ -12,6 +12,7 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
+- podpora Thunderbird pluginu pre Linux
 - prerobenie Thunderbird pluginu
 - pridanie ID k spr·ve a odpovedi z pluginu aby bolo moûnÈ priradiù anot·ciu k spr·ve
 - Log4j logovanie do datab·zy
@@ -30,6 +31,7 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
+- support Thunderbird plugin for Linux
 - redesign Thunderbird plugin
 - add ID to message and response to merge anotations
 - Log4j database logging
