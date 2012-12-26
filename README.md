@@ -12,11 +12,11 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
-- podpora Thunderbird pluginu pre Linux
-- prerobenie Thunderbird pluginu
+- ukladanie vysledkov do databazy
+- bug po ulozeni vysledkov do databazy - plugin zamrzne
 - pridanie ID k spr·ve a odpovedi z pluginu aby bolo moûnÈ priradiù anot·ciu k spr·ve
 - Log4j logovanie do datab·zy
-- pridat tlacitko na oznamenie zlej alebo ziadnej anotacie
+
 
 
 
@@ -31,11 +31,10 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
-- support Thunderbird plugin for Linux
-- redesign Thunderbird plugin
+- save annotations to database
+- bug when saving to database - plugin stop responding
 - add ID to message and response to merge anotations
 - Log4j database logging
-- add button to send response about bad or none annotation
 
 
 

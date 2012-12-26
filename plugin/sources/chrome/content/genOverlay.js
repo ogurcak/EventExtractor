@@ -4,20 +4,19 @@ var eventextractor = {
 
     token_URL : "https://accounts.google.com/o/oauth2/auth?client_id=256241156366.apps.googleusercontent.com&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=https://www.googleapis.com/auth/calendar",   
     database_Json : {},
-    access_token : "none",
-    refresh_token : "none",
-    success_code : "none",
-    calendar_name : "none",    
+    success_code : "none",   
     curent_version : "EventExtractor 2.3",    
     myWindow : null,
+	prefs: null,
     
     
     
     
     
-
+	//DONE
     logMeIn: function() 
     {    
+		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
         this.success_code = document.getElementById('success_code').value;
     
         var request = new XMLHttpRequest();
@@ -29,14 +28,11 @@ var eventextractor = {
         if(request.status == "200")
         {            
             access_token = request.responseText.substring(request.responseText.indexOf("access_token") + 17, request.responseText.indexOf("token_type")- 6);
-            refresh_token = request.responseText.substring(request.responseText.indexOf("refresh_token") + 18, request.responseText.indexOf("}") - 2);
-            
-            var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-            wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("Access_token", access_token);
-            wrk.writeStringValue("Refresh_token", refresh_token);
-            wrk.close();
-            
+            this.prefs.setCharPref("access_token", access_token);
+			
+			refresh_token = request.responseText.substring(request.responseText.indexOf("refresh_token") + 18, request.responseText.indexOf("}") - 2);
+            this.prefs.setCharPref("refresh_token", refresh_token);
+			         
             window.close();
             
         } 
@@ -49,13 +45,12 @@ var eventextractor = {
     
     
     
-    
+    //DONE
     refreshToken: function() 
     {    
-        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_READ);
-        refresh_token = wrk.readStringValue("Refresh_token");
-        wrk.close();
+		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
+		
+		refresh_token = this.prefs.getCharPref("refresh_token");
             
         var request = new XMLHttpRequest();
         request.open('POST', 'https://www.googleapis.com/o/oauth2/token', false);   
@@ -67,21 +62,18 @@ var eventextractor = {
         {  
             //vyparsujeme si access_token a ulozime ho do registra  
             access_token = request.responseText.substring(request.responseText.indexOf("access_token") + 17, request.responseText.indexOf("token_type")- 6);
-            var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-            wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("Access_token", access_token);
-            wrk.close();
+            this.prefs.setCharPref("access_token", access_token);
             eventextractor.getCalendarName();                  
         } 
         else{
             //obnova neprebehla korektne, je potrebna autorizacia
             eventextractor.showError("Authorization required. Try again after authorization.");  
-            this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes');
+            this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes,centerscreen');
         }
     },
     
     
-    
+    //DONE
     openURL: function ()
     {
         var ioservice = Components.classes["@mozilla.org/network/io-service;1"]
@@ -95,65 +87,87 @@ var eventextractor = {
     
     
     
-
-        getCalendarName: function ()
+	//DONE
+    getCalendarName: function ()
     {      
-        eventextractor.showInfo("Trying to get your calendar name.");
-        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
-        
-        if (wrk.hasChild("Mozilla\\Thunderbird")) {
-            var subkey = wrk.openChild("Mozilla\\Thunderbird", wrk.ACCESS_READ);
-            if (subkey.hasValue("Access_token")){
-                access_token = subkey.readStringValue("Access_token");
-                subkey.close();
-                wrk.close();
-            
-                //create request    
-                var request = new XMLHttpRequest();
-                request.open('GET', 'https://www.googleapis.com/calendar/v3/users/me/calendarList', false);   
-                request.setRequestHeader('Host', 'www.googleapis.com');
-                request.setRequestHeader('Authorization', "OAuth ".concat(access_token));       
-                request.send();
+		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
+		
+        if (this.prefs.getCharPref("access_token") != ""){
+          
+            //create request    
+            var request = new XMLHttpRequest();
+            request.open('GET', 'https://www.googleapis.com/calendar/v3/users/me/calendarList', false);   
+            request.setRequestHeader('Host', 'www.googleapis.com');
+            request.setRequestHeader('Authorization', "OAuth ".concat(this.prefs.getCharPref("access_token")));       
+            request.send();
                
-                if(request.status == "401"){
-                    eventextractor.refreshToken();
-                                
-                } else {
-                    if(request.status == "200"){         
-                        var response = request.responseText.split("\n");
+            if(request.status == "401"){
+                eventextractor.refreshToken();
+            } else {
+                if(request.status == "200"){         
+                    var response = request.responseText.split("\n");
                     
-                        for(var i=0; i<response.length; i++){
-                            if(response[i].search('"id"') != -1) calendar_name = response[i];
-                            if(response[i].search('"accessRole"') != -1) 
-                                if(response[i].search('"owner"') != -1) break;
-                        }
-                        calendar_name = calendar_name.substr(10, calendar_name.length-12);
-                        eventextractor.showInfo("Your calendar name is '"+calendar_name+"'.");
-                    
-                    } else {
-                    eventextractor.showError("Error in calendar name extraction. Please contact developer.");
+                    for(var i=0; i<response.length; i++){
+                        if(response[i].search('"id"') != -1) 
+							document.getElementById("calendar").appendItem(response[i].substr(10, response[i].length-12));
+
                     }
+                    eventextractor.showInfo("Calendar names extracted.");
+                    
+                } else {
+                    eventextractor.showError("Error in calendar name extraction. Please contact developer.");
                 }
-            }else {
-                subkey.close();
-                wrk.close();
-                eventextractor.showError("Authorization required. Try again after authorization.");
-                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes');
-            } 
+            }
+        }else {
+            eventextractor.showError("Authorization required. Try again after authorization.");
+            this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes,centerscreen');
+        }       
+    },
+     
+	 
+	//DONE
+	setDefaultCalendarName: function()
+    {      
+        eventextractor.showInfo("Trying to get default calendar name.");
         
-        } else {
-                wrk.close();
-                eventextractor.showError("Authorization required. Try again after authorization.");
-            }        
-     },
+		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
+		
+		//create request    
+		var request = new XMLHttpRequest();
+		request.open('GET', 'https://www.googleapis.com/calendar/v3/users/me/calendarList', false);   
+		request.setRequestHeader('Host', 'www.googleapis.com');
+		request.setRequestHeader('Authorization', "OAuth ".concat(this.prefs.getCharPref("access_token")));       
+		request.send();
+          
+        if(request.status != "401")                    
+			if(request.status == "200"){         
+				var response = request.responseText.split("\n");
+                    
+				for(var i=0; i<response.length; i++){
+					if(response[i].search('"id"') != -1) this.prefs.setCharPref("calendar", response[i]);
+					if(response[i].search('"accessRole"') != -1) 
+						if(response[i].search('"owner"') != -1) break;
+				}
+				this.prefs.setCharPref("calendar", this.prefs.getCharPref("calendar").substr(10, this.prefs.getCharPref("calendar").length-12));
+				eventextractor.showInfo("Your default calendar name is '"+this.prefs.getCharPref("calendar")+"'.");
+                    
+			} else {
+				eventextractor.showError("Error in calendar name extraction. Please contact developer.");
+			}
+	},
      
-     
-    
+	 
+	 
+	 
+    //DONE?
     createNewEvent: function ()
     {
+		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
+	
         eventextractor.showInfo("Creating event...");
-        eventextractor.getCalendarName();   
+		
+        if(this.prefs.getCharPref("calendar") == "")
+			eventextractor.setDefaultCalendarName();   
 
         var description = document.getElementById("description").value.replace(/\n/gi, "  ");
         
@@ -198,9 +212,7 @@ var eventextractor = {
             if(centralTime < -9)  timeOffset = "+"+(-centralTime);
             else timeOffset = "+0"+(-centralTime);
         }
-        
-
-        
+                
             
         var requestText;
         if(document.getElementById("all_day").checked)
@@ -208,23 +220,14 @@ var eventextractor = {
         else
             requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"dateTime": "'+document.getElementById("date_from").value+'T'+document.getElementById("time_from").value+':00.000'+timeOffset+':00"\n},\n"end": {\n "dateTime":"'+document.getElementById("date_to").value+'T'+document.getElementById("time_to").value+':00.000'+timeOffset+':00"\n}\n}';
         
-        //get access_token
-        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
-        
-        if (wrk.hasChild("Mozilla\\Thunderbird")) {
-            
-            var subkey = wrk.openChild("Mozilla\\Thunderbird", wrk.ACCESS_READ);
-            access_token = subkey.readStringValue("Access_token");
-            
-            subkey.close();
-            wrk.close();
+       
+        if (this.prefs.getCharPref("access_token") != "") {
             
             //create request    
             var request = new XMLHttpRequest();
-            request.open('POST', 'https://www.googleapis.com/calendar/v3/calendars/'+calendar_name+'/events?sendNotifications=false&fields=end%2Clocation%2Cstart&pp=1&key={AIzaSyA_ufZ_72GAj0fFKitq6xXSGJ0TeZUwY_0}', false);   
+            request.open('POST', 'https://www.googleapis.com/calendar/v3/calendars/'+this.prefs.getCharPref("calendar")+'/events?sendNotifications=false&fields=end%2Clocation%2Cstart&pp=1&key={AIzaSyA_ufZ_72GAj0fFKitq6xXSGJ0TeZUwY_0}', false);   
             request.setRequestHeader('Host', 'www.googleapis.com');
-            request.setRequestHeader('Authorization', "OAuth ".concat(access_token));   
+            request.setRequestHeader('Authorization', "OAuth ".concat(this.prefs.getCharPref("access_token")));   
             request.setRequestHeader('Content-Type', 'application/json');      
             request.send(requestText);
                  
@@ -233,32 +236,10 @@ var eventextractor = {
             } else {
                 if(request.status == "200"){  
                     eventextractor.showInfo("Event created seccussfuly.");
-                                  
-                    var server;
-                    var extractionMethod;
-        
-                    var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-                    wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
-        
-                    if (wrk.hasChild("Mozilla\\Thunderbird")) {
-                        var subkey = wrk.openChild("Mozilla\\Thunderbird", wrk.ACCESS_READ);
-                        server = subkey.readStringValue("Server");
-                        extractionMethod = subkey.readStringValue("ExtractionMethod");
-                        subkey.close();
-                        wrk.close();
-                    } else {
-                        wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-                        wrk.writeStringValue("ExtractionMethod", "ogurcak.fiit.SK_extractor");
-                        wrk.writeStringValue("Server", "http://events.email.ui.sav.sk:5000");
-                        wrk.close(); 
-            
-                        server = "http://events.email.ui.sav.sk:5000";
-                        extractionMethod = "ogurcak.fiit.SK_extractor";
-                    }
                     
                     document.database_Json.version = this.curent_version;
-                    document.database_Json.ExtractionMethod = extractionMethod;
-                    document.database_Json.CalendarName = calendar_name;
+                    document.database_Json.ExtractionMethod = this.prefs.getCharPref("extractionMethod");
+                    document.database_Json.CalendarName = this.prefs.getCharPref("calendar");
                     document.database_Json.sended = new Object;
                     document.database_Json.sended.Name = document.getElementById("name").value;
                     document.database_Json.sended.Place = document.getElementById("place").value;
@@ -271,9 +252,9 @@ var eventextractor = {
                     var jsonString = JSON.stringify(document.database_Json); 
                    
                     var request2 = new XMLHttpRequest();
-                    request2.open('POST', server, false);   
+                    request2.open('POST', this.prefs.getCharPref("server"), false);   
                     request2.setRequestHeader('Authorization', this.curent_version);
-                    request2.setRequestHeader('ExtractionMethod', extractionMethod);
+                    request2.setRequestHeader('ExtractionMethod', this.prefs.getCharPref("extractionMethod"));
                     request2.setRequestHeader('Content-Type', 'text/html');
                     request2.setRequestHeader('Action', 'SAVE');
         
@@ -293,17 +274,17 @@ var eventextractor = {
             
         
         } else {
-                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes'); 
+                this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes,centerscreen'); 
             
         }
         
         
-     },
+    },
     
     
 
     
-    
+    //DONE
     setDefaultValue: function()
     {
         var now = new Date();
@@ -351,37 +332,17 @@ var eventextractor = {
         document.getElementById("place").removeAllItems();
         document.getElementById("description").value = ""; 
     
-        eventextractor.showInfo("Default value saved.");
+        eventextractor.showInfo("Default value set.");
     },
     
     
     
-    
+    //DONE
     getEventData: function()
     {
+		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
         
-        var server;
-        var extractionMethod;
-        
-        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
-        
-        if (wrk.hasChild("Mozilla\\Thunderbird")) {
-            var subkey = wrk.openChild("Mozilla\\Thunderbird", wrk.ACCESS_READ);
-            server = subkey.readStringValue("Server");
-            extractionMethod = subkey.readStringValue("ExtractionMethod");
-            subkey.close();
-            wrk.close();
-        } else {
-            wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("ExtractionMethod", "ogurcak.fiit.SK_extractor");
-            wrk.writeStringValue("Server", "http://events.email.ui.sav.sk:5000");
-            wrk.close(); 
-            
-            server = "http://events.email.ui.sav.sk:5000";
-            extractionMethod = "ogurcak.fiit.SK_extractor";
-        }
-        
+       
         var win = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getMostRecentWindow("mail:3pane");
         var selectedMessage = win.gFolderDisplay.selectedMessage;
         
@@ -398,15 +359,15 @@ var eventextractor = {
         messenger.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
         let folder = selectedMessage.folder;
         
-        messagepane = messagepane.concat("Content: " + folder.getMsgTextFromStream(listener.inputStream, "ISO-8859-2", 65536, 32768, false, true, { }));
+        messagepane = messagepane.concat("Content: " + folder.getMsgTextFromStream(listener.inputStream, "UTF-8", 65536, 32768, false, true, { }));
         messagepane = messagepane.concat("\n");
         
         eventextractor.showInfo("Waiting for extracted data.");
                          
         var request = new XMLHttpRequest();
-        request.open('POST', server, false);   
+        request.open('POST', this.prefs.getCharPref("server"), false);   
         request.setRequestHeader('Authorization', this.curent_version);
-        request.setRequestHeader('ExtractionMethod', extractionMethod);
+        request.setRequestHeader('ExtractionMethod', this.prefs.getCharPref("extractionMethod"));
         request.setRequestHeader('Content-Type', 'text/html;charset=ISO-8859-2');
 
         request.setRequestHeader('Action', 'ANALYZE');
@@ -489,21 +450,82 @@ var eventextractor = {
     },
 
 
+	//DONE
+	readSettings: function()
+	{
+		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
+		
+		
+		document.getElementById("server").value = this.prefs.getCharPref("server");
+		
+		document.getElementById("calendar").removeAllItems();
+		eventextractor.getCalendarName();
+		document.getElementById("calendar").value = this.prefs.getCharPref("calendar");
+		
+		eventextractor.showInfo("Waiting for available extraction methods.");
+		
+		document.getElementById("extraction_method").removeAllItems();
+		 
+		var request = new XMLHttpRequest();
+        request.open('POST', this.prefs.getCharPref("server"), false);   
+        request.setRequestHeader('Content-Type', 'text/html');
+        request.setRequestHeader('Action', 'GET_METHODS');
+        
+        request.send();
+        
+        if(request.status == "200"){
+            var JSONdata = JSON.parse(request.responseText);
+            
+			var j=0;
+            for(j=0; j<JSONdata.Implementations.length; j++)          
+                document.getElementById("extraction_method").appendItem(JSONdata.Implementations[j]); 
+			eventextractor.showInfo("Founded "+j+" methods.");
+        } else 
+            eventextractor.showError(request.responseText);
+                        
+		document.getElementById("extraction_method").value = this.prefs.getCharPref("extractionMethod");
+		
+	
+	},
 
+	
+	
+	
+	
 
-
-
+	//DONE
      onMenuItemCommand: function(event)
     {
     
-        this.myWindow = window.open('chrome://eventextractor/content/window.xul','','resizable=no,scrollbars=no,location=yes,width=490,height=280,chrome=yes'); 
-        
-        
+        myWindow = window.open('chrome://eventextractor/content/window.xul','','resizable=no,scrollbars=no,location=yes,width=500,height=282,chrome=yes,centerscreen');        
 
     },
+	
+	
+	
+	
+	
+	//DONE	
+	resize: function()
+	{
+		if(document.getElementById("groupbox_settings").collapsed){
+			document.getElementById("groupbox_settings").collapsed = false;	
+			myWindow = window.resizeTo(500, 470);
+			eventextractor.readSettings();			
+		} else
+		{			
+			document.getElementById("groupbox_settings").collapsed = true;	
+			myWindow = window.resizeTo(500, 282);		
+			myWindow = window.resizeTo(500, 282);			
+		}	
+	},
     
     
     
+	
+	
+	
+	//DONE	
     allDayChecking: function()
     {
         if(document.getElementById("all_day").checked)
@@ -523,7 +545,7 @@ var eventextractor = {
     
     
     
-    
+    //DONE
     showError: function (text)
     {
         document.getElementById("icon2").width = 0;
@@ -536,7 +558,7 @@ var eventextractor = {
     
     
     
-    
+   	//DONE 
     showInfo: function (text)
     {
         document.getElementById("icon1").width = 0;
@@ -548,93 +570,52 @@ var eventextractor = {
     },
     
     
-    
-
-}
-
-var options = {
-
-
-    optionsWindow : null,
-    
-    
-
-    openWindow: function (event)
+	
+	
+	//DONE	
+    saveSettings: function()
     {
-        this.optionsWindow = window.open('chrome://eventextractor/content/options.xul','','resizable=no,scrollbars=no,location=yes,width=400,height=230,chrome=yes'); 
+        this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
+		
+		this.prefs.setCharPref("extractionMethod", document.getElementById("extraction_method").value);
+		this.prefs.setCharPref("calendar", document.getElementById("calendar").value);
+		this.prefs.setCharPref("server", document.getElementById("server").value);
+		
+		document.getElementById("name").removeAllItems();
+		document.getElementById("name").width = "320";
+		document.getElementById("date_from").removeAllItems();
+		document.getElementById("date_from").width = "90";
+		document.getElementById("time_from").removeAllItems();
+		document.getElementById("time_from").width = "50";
+		document.getElementById("date_to").removeAllItems();
+		document.getElementById("date_to").width = "90";
+		document.getElementById("time_to").removeAllItems();
+		document.getElementById("time_to").width = "50";
+		document.getElementById("all_day").checked = false;
+		document.getElementById("place").removeAllItems();
+		document.getElementById("place").width = "320";
+		document.getElementById("description").value = "";
+		
+		eventextractor.readSettings();
+		eventextractor.getEventData();
     },
-    
-    
-    
-    
-    
-    readData: function ()
-    {               
-        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
-        
-        if (wrk.hasChild("Mozilla\\Thunderbird")) {
-            var subkey = wrk.openChild("Mozilla\\Thunderbird", wrk.ACCESS_READ);
-            document.getElementById("server_adress").value = subkey.readStringValue("Server");         
-            
-            var request = new XMLHttpRequest();
-            request.open('POST', document.getElementById("server_adress").value, false);   
-            request.setRequestHeader('Content-Type', 'text/html');
-            request.setRequestHeader('Action', 'GET_METHODS');
-        
-            request.send();
-        
-            if(request.status == "200"){
-                var JSONdata = JSON.parse(request.responseText);
-            
-                for(var j=0; j<JSONdata.Implementations.length; j++)          
-                            document.getElementById("extraction_method").appendItem(JSONdata.Implementations[j]);                        
-                document.getElementById("extraction_method").selectedIndex = 0;            
-                       
-            } else 
-                eventextractor.showError(request.responseText);
-                
-            document.getElementById("extraction_method").value = subkey.readStringValue("ExtractionMethod");
-            
-            subkey.close();
-            wrk.close();
-            
-        } else {
-            wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("ExtractionMethod", "ogurcak.fiit.SK_extractor");
-            wrk.writeStringValue("Server", "http://events.email.ui.sav.sk:5000");
-            wrk.close(); 
-            
-            options.readData();       
-        }
-    },
-    
-        
-    
-    
-    save: function()
-    {
-        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-            wrk.create(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE\\Mozilla\\Thunderbird",wrk.ACCESS_WRITE);
-            wrk.writeStringValue("ExtractionMethod", document.getElementById("extraction_method").value);
-            wrk.writeStringValue("Server", document.getElementById("server_adress").value);
-            wrk.close();
-            
-            window.close();	       
-    },
-    
-    
-    
-    
-    resetRegistry: function ()
-    {
-        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_CURRENT_USER,"SOFTWARE",wrk.ACCESS_READ);
-        if (wrk.hasChild("Mozilla\\Thunderbird"))
-             wrk.removeChild("Mozilla\\Thunderbird");
-               
-        window.close();        
-    },
+	
+	
+	//DONE
+	resetSettings: function()
+	{
+		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
+		
+		this.prefs.setCharPref("extractionMethod", "ogurcak.fiit.SK_extractor");
+		this.prefs.setCharPref("calendar", "");
+		this.prefs.setCharPref("server", "http://events.email.ui.sav.sk:5000");
+		this.prefs.setCharPref("access_token", "");
+		this.prefs.setCharPref("refresh_token", "");
+		
+		window.close();
+	},
+	
+	
 
 };
 

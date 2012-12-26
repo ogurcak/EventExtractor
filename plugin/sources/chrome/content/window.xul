@@ -10,11 +10,10 @@
         
   <vbox>   
   
-    <menubar id="menubar" align="right"> 
-                <menuitem label="Options" oncommand="options.openWindow(event);"/>
-    </menubar>  
-  
-  
+	<hbox align="right">
+		<button id='options' label=' Options' image='settings.png' oncommand="eventextractor.resize();"/>
+	</hbox>
+	
     <groupbox align="start">
     <caption label="Create Event"/>
         <vbox>
@@ -70,12 +69,8 @@
           
           <hbox>
            <label control="space4" value="                                                                  "/>
-            <button oncommand="eventextractor.createNewEvent();">
-              <description>Create</description>
-            </button>
-            <button oncommand="eventextractor.setDefaultValue();">
-              <description>Discard</description>
-            </button>
+            <button label="Create" oncommand="eventextractor.createNewEvent();"/>
+            <button label="Discard" oncommand="eventextractor.setDefaultValue();"/>
          </hbox>
         </vbox>
       </groupbox>
@@ -86,5 +81,46 @@
         <image id="icon2" src='info.png' width='0' height='0'/>
         <label value="" id="info_label"/>
       </hbox>
+	  
+	  
+	  
+	  <groupbox id="groupbox_settings" align="start" collapsed="true">
+	  <caption label="Options"/>
+        <vbox>
+			<hbox>
+				<label control="extraction_method_label" value="Extraction method      "/>
+				<menulist editable="true" label="" id="extraction_method" >
+					<menupopup  width="250">
+					</menupopup>
+				</menulist>
+			</hbox>
+			
+			<hbox>
+				<label control="calendar_label" value="Calendar name            "/>
+				<menulist editable="true" label="" id="calendar" >
+					<menupopup  width="250">
+					</menupopup>
+				</menulist>
+			</hbox>
+			
+			<hbox>
+				<label control="server_label" value="Server                            "/>
+				<textbox id="server" size="40" multiline="false" cols="16"/>
+			</hbox>
+			
+			<hbox> <label control="space6" value="    " />
+			</hbox>
+		  
+			<hbox>	
+				<label control="space7" value="                                                                  "/>
+				<button label="Save" oncommand="eventextractor.saveSettings();"/>
+				<button label="Reset" oncommand="eventextractor.resetSettings();"/>
+			</hbox>
+			
+		</vbox>
+		</groupbox>
+		
+		
+		
   </vbox>
 </window>
