@@ -12,10 +12,8 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
-- ukladanie vysledkov do databazy
-- bug po ulozeni vysledkov do databazy - plugin zamrzne
+- ukladanie odoslanych vysledkov do databazy
 - pridanie ID k spr·ve a odpovedi z pluginu aby bolo moûnÈ priradiù anot·ciu k spr·ve
-- Log4j logovanie do datab·zy
 
 
 
@@ -31,10 +29,8 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
-- save annotations to database
-- bug when saving to database - plugin stop responding
+- save sended annotations to database
 - add ID to message and response to merge anotations
-- Log4j database logging
 
 
 
