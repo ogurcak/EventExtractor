@@ -8,7 +8,7 @@
         <script src="genOverlay.js" type="application/x-javascript"/>
         
         
-  <vbox>   
+<vbox>   
   
 	<hbox align="right">
 		<button id='options' label=' Options' image='settings.png' oncommand="eventextractor.resize();"/>
@@ -16,111 +16,182 @@
 	
     <groupbox align="start">
     <caption label="Create Event"/>
-        <vbox>
-          <hbox>
-            <label control="name_label" value="Name         " />
-            <menulist editable="true" id="name" label="">
-                <menupopup width="300">
-                </menupopup>
-            </menulist>
-          </hbox>
-          <hbox>
-            <label control="from_label" value="From          "/>
-            <menulist editable="true" label="" id="date_from" >
-                <menupopup  width="70">
-                </menupopup>
-            </menulist>
-            <menulist editable="true" label="" id="time_from" >
-                <menupopup  width="40">
-                </menupopup>
-            </menulist>
-          </hbox>
-          <hbox>
-            <label control="to_label" value="To               "/>
-            <menulist editable="true" label="" id="date_to" >
-                <menupopup  width="70">
-                </menupopup>
-            </menulist>
-            <menulist editable="true" label="" id="time_to" >
-                <menupopup  width="40">
-                </menupopup>
-            </menulist>
-            
-            <label control="all_day_label" value="    "/>
-            <checkbox label="All-day event" checked="false" id="all_day" oncommand="eventextractor.allDayChecking();"/>
+        
+		<grid>
+			<columns>
+				<column flex="1" width="90"/>
+				<column flex="2" width="350"/>
+			</columns>
+			
+			<rows>
+			
+				<row>
+					<label control="name_label" value="Name" />
+					<menulist editable="true" id="name" label="">
+						<menupopup>
+						</menupopup>
+					</menulist>
+				</row>
+				
+				<row>				
+					<label control="from_label" value="From"/>
+					<grid>
+						<columns>
+							<column flex="1" width="100"/>
+							<column flex="2" width="60"/>
+							<column flex="3" width="30"/>
+							<column flex="4" width="120"/>
+						</columns>			
+						<rows>
+							<row>						
+								<menulist editable="true" label="" id="date_from" >
+									<menupopup>
+									</menupopup>
+								</menulist>
+								<menulist editable="true" label="" id="time_from" >
+									<menupopup >
+									</menupopup>
+								</menulist>							
+							</row>
+						</rows>
+					</grid>
+				</row>
+				
+				<row>				
+					<label control="to_label" value="To"/>
+					<grid>
+						<columns>
+							<column flex="1" width="100"/>
+							<column flex="2" width="60"/>
+							<column flex="3" width="30"/>
+							<column flex="4" width="120"/>
+						</columns>			
+						<rows>
+							<row>						
+								<menulist editable="true" label="" id="date_to" >
+									<menupopup>
+									</menupopup>
+								</menulist>
+								<menulist editable="true" label="" id="time_to" >
+									<menupopup>
+									</menupopup>
+								</menulist>
+								<label control="all_day_label" value="    "/>
+								<checkbox label="All-day event" checked="false" id="all_day" oncommand="eventextractor.allDayChecking();"/>					
+							</row>
+						</rows>
+					</grid>
+				</row>
+				
+				<row>	
+					<label control="place_label" value="Place"/>
+					<menulist editable="true" label="" id="place" >
+						<menupopup>
+						</menupopup>
+					</menulist>
+				</row>
+				
+				<row>						
+					<label control="description_label" value="Description"/>
+					<textbox id="description" size="300" multiline="true" />					
+				</row>
 
-            
-          </hbox>
-          <hbox>
-            <label control="place_label" value="Place           "/>
-            <menulist editable="true" label="" id="place" >
-                <menupopup  width="300">
-                </menupopup>
-            </menulist>
-          </hbox>
-          <hbox>
-            <label control="description_label" value="Description"/>
-            <textbox id="description" size="300" multiline="true" cols="46"/>
-          </hbox>
-          
-          <hbox> <label control="space3" value="    " />
-
-          </hbox>
-          
-          <hbox>
-           <label control="space4" value="                                                                  "/>
-            <button label="Create" oncommand="eventextractor.createNewEvent();"/>
-            <button label="Discard" oncommand="eventextractor.setDefaultValue();"/>
-         </hbox>
-        </vbox>
-      </groupbox>
+				<row>
+					<label control="space1" value=" "/>
+				</row>
+				
+			</rows>
+		</grid>
+		
+		<grid>
+			<columns>
+				<column flex="1" width="270"/>
+				<column flex="2" width="80"/>
+				<column flex="3" width="80"/>
+			</columns>
+			
+			<rows>
+			
+				<row>
+					<label control="space4" value=" "/>
+					<button label="Create" oncommand="eventextractor.createNewEvent();"/>
+					<button label="Discard" oncommand="eventextractor.setDefaultValue();"/>
+				</row>
+				
+			</rows>
+		</grid>
+		
+    </groupbox>
       
-      <hbox>
-        <label id="space5" value="         "/>
+    <hbox>
+		<label id="space5" value="         "/>
         <image id="icon1" src='error.gif' width='0' height='0'/>
         <image id="icon2" src='info.png' width='0' height='0'/>
         <label value="" id="info_label"/>
-      </hbox>
+    </hbox>
 	  
 	  
 	  
-	  <groupbox id="groupbox_settings" align="start" collapsed="true">
-	  <caption label="Options"/>
-        <vbox>
-			<hbox>
-				<label control="extraction_method_label" value="Extraction method      "/>
-				<menulist editable="true" label="" id="extraction_method" >
-					<menupopup  width="250">
-					</menupopup>
-				</menulist>
-			</hbox>
+	<groupbox id="groupbox_settings" align="start" collapsed="true">
+	<caption label="Options"/>
+	
+		<grid>
+			<columns>
+				<column flex="1" width="120"/>
+				<column flex="2" width="320"/>
+			</columns>
 			
-			<hbox>
-				<label control="calendar_label" value="Calendar name            "/>
-				<menulist editable="true" label="" id="calendar" >
-					<menupopup  width="250">
-					</menupopup>
-				</menulist>
-			</hbox>
+			<rows>
 			
-			<hbox>
-				<label control="server_label" value="Server                            "/>
-				<textbox id="server" size="40" multiline="false" cols="16"/>
-			</hbox>
+				<row>
+					<label control="extraction_method_label" value="Extraction method"/>
+					<menulist editable="true" label="" id="extraction_method" >
+						<menupopup>
+						</menupopup>
+					</menulist>
+				</row>
 			
-			<hbox> <label control="space6" value="    " />
-			</hbox>
-		  
-			<hbox>	
-				<label control="space7" value="                                                                  "/>
-				<button label="Save" oncommand="eventextractor.saveSettings();"/>
-				<button label="Reset" oncommand="eventextractor.resetSettings();"/>
-			</hbox>
+				<row>
+					<label control="calendar_label" value="Calendar name"/>
+					<menulist editable="true" label="" id="calendar" >
+						<menupopup>
+						</menupopup>
+					</menulist>
+				</row>
 			
-		</vbox>
-		</groupbox>
+				<row>
+					<label control="server_label" value="Server"/>
+					<textbox id="server" size="40" multiline="false"/>
+				</row>
+			
+				<row> 
+					<label control="space1" value=" "/>
+				</row>
+				
+			</rows>
+		</grid>	
+			
+		<grid>
+			<columns>
+				<column flex="1" width="270"/>
+				<column flex="2" width="80"/>
+				<column flex="3" width="80"/>
+			</columns>
+			
+			<rows>
+			
+				<row>
+					<label control="space7" value=" "/>
+					<button label="Save" oncommand="eventextractor.saveSettings();"/>
+					<button label="Reset" oncommand="eventextractor.resetSettings();"/>
+				</row>
+				
+			</rows>
+		</grid>
+			
+	</groupbox>
 		
 		
 		
-  </vbox>
+</vbox>
 </window>

@@ -1,11 +1,11 @@
 var eventextractor = {
 
 
-
     token_URL : "https://accounts.google.com/o/oauth2/auth?client_id=256241156366.apps.googleusercontent.com&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=https://www.googleapis.com/auth/calendar",   
     database_Json : {},
     success_code : "none",   
-    curent_version : "EventExtractor 2.3",    
+    curent_version : "EventExtractor 2.3",   
+	message_id : "0",	
     myWindow : null,
 	prefs: null,
     
@@ -13,7 +13,11 @@ var eventextractor = {
     
     
     
-	//DONE
+
+	
+	
+	
+	
     logMeIn: function() 
     {    
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
@@ -33,19 +37,18 @@ var eventextractor = {
 			refresh_token = request.responseText.substring(request.responseText.indexOf("refresh_token") + 18, request.responseText.indexOf("}") - 2);
             this.prefs.setCharPref("refresh_token", refresh_token);
 			         
-            window.close();
-            
+            window.close();            
         } 
         else
-            eventextractor.showError(request.responseText);
-        
+            eventextractor.showError(request.responseText);        
     },
     
     
     
     
     
-    //DONE
+
+	
     refreshToken: function() 
     {    
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
@@ -73,7 +76,11 @@ var eventextractor = {
     },
     
     
-    //DONE
+
+	
+	
+	
+	
     openURL: function ()
     {
         var ioservice = Components.classes["@mozilla.org/network/io-service;1"]
@@ -87,7 +94,10 @@ var eventextractor = {
     
     
     
-	//DONE
+
+	
+	
+	
     getCalendarName: function ()
     {      
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
@@ -125,7 +135,11 @@ var eventextractor = {
     },
      
 	 
-	//DONE
+
+	 
+	 
+	 
+	 
 	setDefaultCalendarName: function()
     {      
         eventextractor.showInfo("Trying to get default calendar name.");
@@ -159,7 +173,9 @@ var eventextractor = {
 	 
 	 
 	 
-    //DONE?
+
+	 
+	 
     createNewEvent: function ()
     {
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
@@ -201,7 +217,6 @@ var eventextractor = {
             document.getElementById("time_to").value = timeValue;
         }
         
-
         var timeOffset;
         var d = new Date();
         var centralTime = d.getTimezoneOffset()/60;
@@ -211,15 +226,13 @@ var eventextractor = {
         }else{
             if(centralTime < -9)  timeOffset = "+"+(-centralTime);
             else timeOffset = "+0"+(-centralTime);
-        }
-                
+        }  
             
         var requestText;
         if(document.getElementById("all_day").checked)
             requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"date": "'+document.getElementById("date_from").value+'"\n},\n"end": {\n "date":"'+document.getElementById("date_to").value+'"\n}\n}';
         else
             requestText = '{\n"summary": "'+document.getElementById("name").value+'",\n"location": "'+document.getElementById("place").value+'",\n"description": \''+ description+'\',\n"start": {\n"dateTime": "'+document.getElementById("date_from").value+'T'+document.getElementById("time_from").value+':00.000'+timeOffset+':00"\n},\n"end": {\n "dateTime":"'+document.getElementById("date_to").value+'T'+document.getElementById("time_to").value+':00.000'+timeOffset+':00"\n}\n}';
-        
        
         if (this.prefs.getCharPref("access_token") != "") {
             
@@ -237,54 +250,42 @@ var eventextractor = {
                 if(request.status == "200"){  
                     eventextractor.showInfo("Event created seccussfuly.");
                     
-                    document.database_Json.version = this.curent_version;
-                    document.database_Json.ExtractionMethod = this.prefs.getCharPref("extractionMethod");
-                    document.database_Json.CalendarName = this.prefs.getCharPref("calendar");
-                    document.database_Json.sended = new Object;
-                    document.database_Json.sended.Name = document.getElementById("name").value;
-                    document.database_Json.sended.Place = document.getElementById("place").value;
-                    document.database_Json.sended.DateFrom = document.getElementById("date_from").value;
-                    document.database_Json.sended.TimeFrom = document.getElementById("time_from").value;
-                    document.database_Json.sended.DateTo = document.getElementById("date_to").value;
-                    document.database_Json.sended.TimeTo = document.getElementById("time_to").value;
-                    document.database_Json.sended.Description = document.getElementById("description").value;
-                    
-                    var jsonString = JSON.stringify(document.database_Json); 
-                   
+					document.database_Json = new Object();
+					document.database_Json.id = this.message_id;
+                    document.database_Json.Name = document.getElementById("name").value;
+                    document.database_Json.Place = document.getElementById("place").value;
+                    document.database_Json.DateFrom = document.getElementById("date_from").value;
+                    document.database_Json.TimeFrom = document.getElementById("time_from").value;
+                    document.database_Json.DateTo = document.getElementById("date_to").value;
+                    document.database_Json.TimeTo = document.getElementById("time_to").value;
+					document.database_Json.AllDay = document.getElementById("all_day").checked;
+                    document.database_Json.Description = document.getElementById("description").value;
+                                      
                     var request2 = new XMLHttpRequest();
-                    request2.open('POST', this.prefs.getCharPref("server"), false);   
+                    request2.open('POST', this.prefs.getCharPref("server"), true);   
                     request2.setRequestHeader('Authorization', this.curent_version);
                     request2.setRequestHeader('ExtractionMethod', this.prefs.getCharPref("extractionMethod"));
-                    request2.setRequestHeader('Content-Type', 'text/html');
+                    request2.setRequestHeader('Content-Type', 'application/json');
                     request2.setRequestHeader('Action', 'SAVE');
-        
-                    request2.send(jsonString);      
-                    
-                    if(request2.status = "200")
-                        eventextractor.showInfo("Data saved successfully.");
-                    else
-                        eventextractor.showError(request2.text);
-                                
+					
+                    request2.send(JSON.stringify(document.database_Json) + "\n");      
+                      
                     
                 } else {
                     eventextractor.showError("Unexpected error. Check inserted data and try again later.");
                 }
             }
-
-            
-        
         } else {
                 this.myWindow = window.open('chrome://eventextractor/content/authorization.xul','','resizable=no,scrollbars=no,location=yes,width=600,height=230,chrome=yes,centerscreen'); 
-            
         }
-        
-        
     },
     
     
 
     
-    //DONE
+
+	
+	
     setDefaultValue: function()
     {
         var now = new Date();
@@ -323,8 +324,7 @@ var eventextractor = {
         year = now.getYear() + 1900;        
         document.getElementById("date_to").removeAllItems();
         document.getElementById("date_to").appendItem(year + "-" + month + "-" + date);
-        document.getElementById("date_to").selectedIndex = 0;
-        
+        document.getElementById("date_to").selectedIndex = 0;        
         
         document.getElementById("name").value = "";
         document.getElementById("name").removeAllItems();
@@ -337,12 +337,14 @@ var eventextractor = {
     
     
     
-    //DONE
+
+	
+	
+	
     getEventData: function()
     {
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
         
-       
         var win = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getMostRecentWindow("mail:3pane");
         var selectedMessage = win.gFolderDisplay.selectedMessage;
         
@@ -351,15 +353,14 @@ var eventextractor = {
         messagepane = messagepane.concat("To: " + selectedMessage.recipients + "\n");
         messagepane = messagepane.concat("Date: " +selectedMessage.dateInSeconds +"\n");
         messagepane = messagepane.concat("Subject: " + selectedMessage.subject + "\n");
-              
-        
+               
         let messenger = Components.classes["@mozilla.org/messenger;1"].createInstance(Components.interfaces.nsIMessenger);
         let listener = Components.classes["@mozilla.org/network/sync-stream-listener;1"].createInstance(Components.interfaces.nsISyncStreamListener);
         let uri = selectedMessage.folder.getUriForMsg(selectedMessage);
         messenger.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
         let folder = selectedMessage.folder;
         
-        messagepane = messagepane.concat("Content: " + folder.getMsgTextFromStream(listener.inputStream, "UTF-8", 65536, 32768, false, true, { }));
+        messagepane = messagepane.concat("Content: " + folder.getMsgTextFromStream(listener.inputStream, "ISO-8859-2", 65536, 32768, false, true, { }));
         messagepane = messagepane.concat("\n");
         
         eventextractor.showInfo("Waiting for extracted data.");
@@ -369,92 +370,70 @@ var eventextractor = {
         request.setRequestHeader('Authorization', this.curent_version);
         request.setRequestHeader('ExtractionMethod', this.prefs.getCharPref("extractionMethod"));
         request.setRequestHeader('Content-Type', 'text/html;charset=ISO-8859-2');
-
         request.setRequestHeader('Action', 'ANALYZE');
         
         request.send(messagepane);
-        
-        
         
         if(request.status == "200"){
             var loaded = 0;
         
             var JSONdata = JSON.parse(request.responseText);
             
-            var newJson = new Object();
-            newJson.messagepane = messagepane;
             
-            newJson.received = new Object;
-            
-            newJson.received.Name = new Array();
             for(var j=0; j<JSONdata.Name.length; j++){
                         if(JSONdata.Name[j] != "") loaded++;           
                         document.getElementById("name").appendItem(JSONdata.Name[j]); 
-                        newJson.received.Name[j] = JSONdata.Name[j];
                         }
             document.getElementById("name").selectedIndex = 0;  
             
-            newJson.received.Place = new Array();
             for(var j=0; j<JSONdata.Place.length; j++){    
                         if(JSONdata.Place[j] != "") loaded++;       
                         document.getElementById("place").appendItem(JSONdata.Place[j]); 
-                        newJson.received.Place[j] = JSONdata.Place[j];
                         }
             document.getElementById("place").selectedIndex = 0;  
             
-            newJson.received.DateFrom = new Array();
             for(var j=0; j<JSONdata.DateFrom.length; j++){  
                         if(JSONdata.DateFrom[j] != "") loaded++;         
                         document.getElementById("date_from").appendItem(JSONdata.DateFrom[j]); 
-                        newJson.received.DateFrom[j] = JSONdata.DateFrom[j];
                         }
             document.getElementById("date_from").selectedIndex = 0;  
             
-            newJson.received.TimeFrom = new Array();
             for(var j=0; j<JSONdata.TimeFrom.length; j++){     
                         if(JSONdata.TimeFrom[j] != "")loaded++;      
                         document.getElementById("time_from").appendItem(JSONdata.TimeFrom[j]); 
-                        newJson.received.TimeFrom[j] = JSONdata.TimeFrom[j];
                         }
             document.getElementById("time_from").selectedIndex = 0;  
             
-            newJson.received.DateTo = new Array();
             for(var j=0; j<JSONdata.DateTo.length; j++){ 
                         if(JSONdata.DateTo[j] != "")loaded++;          
                         document.getElementById("date_to").appendItem(JSONdata.DateTo[j]); 
-                        newJson.received.DateTo[j] = JSONdata.DateTo[j];
                         }
             document.getElementById("date_to").selectedIndex = 0;  
             
-            newJson.received.TimeTo = new Array();
             for(var j=0; j<JSONdata.TimeTo.length; j++){  
                         if(JSONdata.TimeTo[j] != "") loaded++;         
                         document.getElementById("time_to").appendItem(JSONdata.TimeTo[j]); 
-                        newJson.received.TimeTo[j] = JSONdata.TimeTo[j];
                         }
             document.getElementById("time_to").selectedIndex = 0;  
             
-            newJson.received.Description = JSONdata.Description;
             if(JSONdata.Description != "") loaded++;
             document.getElementById("description").value = JSONdata.Description; 
-            
-            document.database_Json = newJson;     
             
             eventextractor.showInfo("Extraction complete. Founded "+loaded+" items.");     
                        
         } else 
             eventextractor.showError(request.responseText);
-            
-
-    
-    },
+	},
 
 
-	//DONE
+
+	
+	
+	
+	
 	readSettings: function()
 	{
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
-		
 		
 		document.getElementById("server").value = this.prefs.getCharPref("server");
 		
@@ -484,8 +463,6 @@ var eventextractor = {
             eventextractor.showError(request.responseText);
                         
 		document.getElementById("extraction_method").value = this.prefs.getCharPref("extractionMethod");
-		
-	
 	},
 
 	
@@ -493,19 +470,18 @@ var eventextractor = {
 	
 	
 
-	//DONE
-     onMenuItemCommand: function(event)
-    {
-    
-        myWindow = window.open('chrome://eventextractor/content/window.xul','','resizable=no,scrollbars=no,location=yes,width=500,height=282,chrome=yes,centerscreen');        
 
+     onMenuItemCommand: function(event)
+    {    
+        myWindow = window.open('chrome://eventextractor/content/window.xul','','resizable=no,scrollbars=no,location=yes,width=500,height=282,chrome=yes,centerscreen');        
     },
 	
 	
 	
 	
 	
-	//DONE	
+
+	
 	resize: function()
 	{
 		if(document.getElementById("groupbox_settings").collapsed){
@@ -525,7 +501,7 @@ var eventextractor = {
 	
 	
 	
-	//DONE	
+
     allDayChecking: function()
     {
         if(document.getElementById("all_day").checked)
@@ -545,7 +521,10 @@ var eventextractor = {
     
     
     
-    //DONE
+
+	
+	
+	
     showError: function (text)
     {
         document.getElementById("icon2").width = 0;
@@ -558,7 +537,10 @@ var eventextractor = {
     
     
     
-   	//DONE 
+
+	
+	
+	
     showInfo: function (text)
     {
         document.getElementById("icon1").width = 0;
@@ -572,7 +554,9 @@ var eventextractor = {
     
 	
 	
-	//DONE	
+
+	
+	
     saveSettings: function()
     {
         this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
@@ -581,19 +565,13 @@ var eventextractor = {
 		this.prefs.setCharPref("calendar", document.getElementById("calendar").value);
 		this.prefs.setCharPref("server", document.getElementById("server").value);
 		
-		document.getElementById("name").removeAllItems();
-		document.getElementById("name").width = "320";
+		document.getElementById("name").removeAllItems();		
 		document.getElementById("date_from").removeAllItems();
-		document.getElementById("date_from").width = "90";
 		document.getElementById("time_from").removeAllItems();
-		document.getElementById("time_from").width = "50";
 		document.getElementById("date_to").removeAllItems();
-		document.getElementById("date_to").width = "90";
 		document.getElementById("time_to").removeAllItems();
-		document.getElementById("time_to").width = "50";
 		document.getElementById("all_day").checked = false;
 		document.getElementById("place").removeAllItems();
-		document.getElementById("place").width = "320";
 		document.getElementById("description").value = "";
 		
 		eventextractor.readSettings();
@@ -601,7 +579,11 @@ var eventextractor = {
     },
 	
 	
-	//DONE
+
+	
+	
+	
+	
 	resetSettings: function()
 	{
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extractor.");
@@ -616,6 +598,10 @@ var eventextractor = {
 	},
 	
 	
+	
+	
 
+	
+	
 };
 
