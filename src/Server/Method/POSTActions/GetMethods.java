@@ -32,6 +32,10 @@ public class GetMethods
 
 	private DataOutputStream outgoing;
 
+	private List<String> foundClasses = null;
+
+	private JSONObject JSONobj = null;
+
 	@SuppressWarnings("unused")
 	private BufferedReader incoming;
 
@@ -70,7 +74,7 @@ public class GetMethods
 		for (File f : file.listFiles(filter))
 			jars.add(f);
 
-		List<String> foundClasses = new ArrayList<String>();
+		foundClasses = new ArrayList<String>();
 		for (File f : jars) {
 			JarFile jar;
 			try {
@@ -93,9 +97,19 @@ public class GetMethods
 				logger.fatal(e.getMessage());
 			}
 		}
+	}
 
-		JSONObject JSONobj = new JSONObject();
 
+
+
+
+
+	public void makeJsonObject() throws Exception {
+
+		if (foundClasses == null)
+			throw (new Exception("Call getMethods() first !!!"));
+
+		JSONobj = new JSONObject();
 		JSONArray implementatios = new JSONArray();
 
 		for (String s : foundClasses)
@@ -107,6 +121,19 @@ public class GetMethods
 			logger.fatal(e.getMessage() + " :Problem with JSON creation.");
 		}
 
+	}
+
+
+
+
+
+
+	public void sendJsonObject() throws Exception {
+
+		if (JSONobj == null)
+			throw (new Exception("Call makeJsonObject() first !!!"));
+
 		new Response(outgoing).sendResponse(200, JSONobj.toString());
+
 	}
 }
