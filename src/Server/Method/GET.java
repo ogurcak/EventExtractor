@@ -5,6 +5,7 @@ package Server.Method;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
@@ -25,7 +26,7 @@ public class GET
 
 
 
-	public GET(DataOutputStream outgoing, BufferedReader incoming)
+	public GET(DataOutputStream outgoing, BufferedReader incoming, Socket connection)
 	{
 
 		try {

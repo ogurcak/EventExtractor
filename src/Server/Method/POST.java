@@ -4,6 +4,7 @@ package Server.Method;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.net.Socket;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
@@ -22,7 +23,7 @@ public class POST
 
 	private static Logger logger = Logger.getLogger(POST.class.getName());
 
-	private String currentVersion = "2.3";
+	private String currentVersion = "2.4";
 
 	private String action;
 
@@ -30,20 +31,25 @@ public class POST
 
 	private String incomingLine;
 
+	private String authorization;
+
 	private DataOutputStream outgoing;
 
 	private BufferedReader incoming;
 
+	private Socket connection = null;
 
 
 
 
 
-	public POST(DataOutputStream outgoing, BufferedReader incoming)
+
+	public POST(DataOutputStream outgoing, BufferedReader incoming, Socket connection)
 	{
 
 		this.outgoing = outgoing;
 		this.incoming = incoming;
+		this.connection = connection;
 
 		logger.info("Client send POST request:");
 		readHeaders();
@@ -66,9 +72,9 @@ public class POST
 				if (line.contains("Authorization: ")) {
 					StringTokenizer tokenizer = new StringTokenizer(line);
 					String httpMethod = tokenizer.nextToken();
-					String httpQueryString = tokenizer.nextToken();
-					httpQueryString = tokenizer.nextToken();
-					if (!httpQueryString.equals(currentVersion)) {
+					authorization = tokenizer.nextToken();
+					authorization = tokenizer.nextToken();
+					if (!authorization.equals(currentVersion)) {
 						logger.info(incomingLine);
 						new Response(outgoing).sendResponse(400, "Error: New version available - http://events.email.ui.sav.sk \r\n");
 						throw (new Exception("Plugin has old version."));
@@ -106,8 +112,8 @@ public class POST
 			if (action.contains("ANALYZE")) {
 				logger.info(incomingLine);
 
-				Analyze analyze = new Analyze(outgoing, incoming);
-				analyze.prepareExtractionMethod(extractionMethod);
+				Analyze analyze = new Analyze(outgoing, incoming, connection);
+				analyze.prepareExtractionMethod(extractionMethod, authorization);
 				analyze.analyzeMessage();
 				analyze.saveDataToDatabase();
 				analyze.makeJsonObject();

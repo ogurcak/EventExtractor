@@ -12,8 +12,6 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
-- ukladanie odoslanych vysledkov do databazy
-- pridanie ID k spr·ve a odpovedi z pluginu aby bolo moûnÈ priradiù anot·ciu k spr·ve
 - encoding
 - javaDoc
 
@@ -31,8 +29,6 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
-- save sended annotations to database
-- add ID to message and response to merge anotations
 - encoding
 - javaDoc
 

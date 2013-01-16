@@ -73,11 +73,11 @@ public class HTTPServer extends Thread
 			tokenizer.nextToken();
 
 			if (httpMethod.equals("POST")) {
-				new POST(outgoing, incoming);
+				new POST(outgoing, incoming, connection);
 			}
 
 			if (httpMethod.equals("GET")) {
-				new GET(outgoing, incoming);
+				new GET(outgoing, incoming, connection);
 			}
 
 		} catch (IOException e) {
