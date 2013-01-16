@@ -4,7 +4,7 @@ var eventextractor = {
     token_URL : "https://accounts.google.com/o/oauth2/auth?client_id=256241156366.apps.googleusercontent.com&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=https://www.googleapis.com/auth/calendar",   
     database_Json : {},
     success_code : "none",   
-    curent_version : "EventExtractor 2.3",   
+    curent_version : "EventExtractor 2.4",   
 	message_id : "0",	
     myWindow : null,
 	prefs: null,
@@ -418,6 +418,8 @@ var eventextractor = {
             
             if(JSONdata.Description != "") loaded++;
             document.getElementById("description").value = JSONdata.Description; 
+			
+			this.message_id = JSONdata.MessageID;
             
             eventextractor.showInfo("Extraction complete. Founded "+loaded+" items.");     
                        
