@@ -11,7 +11,9 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -55,9 +57,10 @@ public class Save
 
 
 	public void saveToDatabase() {
-		
-		    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		   
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		SimpleDateFormat sdadf = new SimpleDateFormat("yyyy-MM-dd");
+
 
 
 		try {
@@ -71,15 +74,35 @@ public class Save
 			int received_id = obj.getInt("id");
 			String sended_name = obj.getString("Name");
 			String sended_place = obj.getString("Place");
-
-			String sended_dateFrom_String = obj.getString("DateFrom") + " " + obj.getString("TimeFrom");
-			Date sended_dateFrom = sdf.parse(sended_dateFrom_String);
-
-			String sended_dateTo_String = obj.getString("DateTo") + " " + obj.getString("TimeTo");
-			Date sended_dateTo = sdf.parse(sended_dateTo_String);
-			
 			Boolean sended_allDay = obj.getBoolean("AllDay");
 			String sended_description = obj.getString("Description");
+
+			Date sended_dateFrom;
+			Date sended_dateTo;
+
+			if (sended_allDay) {
+				sended_dateFrom = sdadf.parse(obj.getString("DateFrom"));
+				Calendar dateFrom = new GregorianCalendar();
+				dateFrom.setTime(sended_dateFrom);
+				dateFrom.set(Calendar.HOUR_OF_DAY, 0);
+				dateFrom.set(Calendar.MINUTE, 0);
+				dateFrom.set(Calendar.SECOND, 0);
+				sended_dateFrom = dateFrom.getTime();
+
+				sended_dateTo = sdadf.parse(obj.getString("DateTo"));
+				Calendar dateTo = new GregorianCalendar();
+				dateTo.setTime(sended_dateFrom);
+				dateTo.set(Calendar.HOUR_OF_DAY, 0);
+				dateTo.set(Calendar.MINUTE, 0);
+				dateTo.set(Calendar.SECOND, 0);
+				sended_dateFrom = dateTo.getTime();
+			} else {
+				String sended_dateFrom_String = obj.getString("DateFrom") + " " + obj.getString("TimeFrom");
+				sended_dateFrom = sdf.parse(sended_dateFrom_String);
+
+				String sended_dateTo_String = obj.getString("DateTo") + " " + obj.getString("TimeTo");
+				sended_dateTo = sdf.parse(sended_dateTo_String);
+			}
 
 
 
