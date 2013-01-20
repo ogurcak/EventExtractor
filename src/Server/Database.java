@@ -85,11 +85,12 @@ final public class Database
 	 *               If an exception during insert to database occurred */
 	static public void insert(String query) throws SQLException {
 
-		if (!stmt.getConnection().isValid(20)) {
-			connect();
-			logger.info("Database reconnected.");
-		}
+		
 		if (stmt != null) {
+			if (!stmt.getConnection().isValid(20)) {
+				connect();
+				logger.info("Database reconnected.");
+			}
 			stmt.executeUpdate(query);
 			logger.info("Saved to database.");
 		} else
@@ -109,11 +110,11 @@ final public class Database
 	 *               If an exception during insert to database occurred */
 	static public void insert(PreparedStatement statement) throws SQLException {
 
-		if (!conn.isValid(20)) {
-			connect();
-			logger.info("Database reconnected.");
-		}
 		if (stmt != null) {
+			if (!stmt.getConnection().isValid(20)) {
+				connect();
+				logger.info("Database reconnected.");
+			}
 			statement.execute();
 			logger.info("Saved to database.");
 		} else
@@ -131,12 +132,12 @@ final public class Database
 	static public Connection getConnection() {
 
 		try {
-			if (conn.isValid(20))
-				return conn;
+			if (stmt.getConnection().isValid(20))
+				return stmt.getConnection();
 			else {
 				connect();
 				logger.info("Database reconnected.");
-				return conn;
+				return stmt.getConnection();
 			}
 		} catch (SQLException e) {
 			logger.error("Connection check error: " + e);
