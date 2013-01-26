@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Calendar;
-import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +14,9 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import org.apache.log4j.Logger;
+
 
 
 
@@ -46,6 +48,9 @@ abstract public class Event
 
 	/** Email message in which extraction is performed */
 	protected MimeMessage message = null;
+
+
+	protected int message_id = 0;
 
 	/** Logger used to make logs during program's runtime */
 	protected static Logger logger = Logger.getLogger(Event.class.getName());
@@ -225,6 +230,15 @@ abstract public class Event
 
 
 
+	/** Abstract method designed for extended. After it, this method provides all functionality to
+	 * save everything to database. */
+	abstract public void saveToDatabase();
+
+
+
+
+
+
 	/** Get list of events names extracted from message.
 	 * 
 	 * @return list of events names */
@@ -353,6 +367,26 @@ abstract public class Event
 	public void addDateTo(Calendar dateTo) {
 
 		this.datesTo.add(dateTo);
+	}
+
+
+
+
+
+
+	public void setMessageId(int id) {
+
+		this.message_id = id;
+	}
+
+
+
+
+
+
+	public int getMessageId() {
+
+		return this.message_id;
 	}
 
 }

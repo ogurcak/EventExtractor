@@ -10,9 +10,7 @@ import java.net.Socket;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.mail.Address;
 import javax.mail.Message;
@@ -234,6 +232,9 @@ public class Analyze
 			saveDescriptionToDatabase();
 			saveDatesFromToDatabase();
 			saveDatesToToDatabase();
+			
+			event.setMessageId(id);
+			event.saveToDatabase();
 
 		} catch (MessagingException e) {
 			logger.error("Error while reading mimeMessage: " + e);
