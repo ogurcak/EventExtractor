@@ -5,7 +5,7 @@
   <Description about="urn:mozilla:install-manifest">
 
     <em:id>filip.ogurcak@gmail.com</em:id>
-    <em:version>2.4</em:version>
+    <em:version>3.0</em:version>
 
     <em:type>2</em:type>
     <em:name>Event Extractor</em:name>
@@ -17,8 +17,8 @@
     <em:targetApplication>
       <Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
-        <em:minVersion>1.5</em:minVersion>
-        <em:maxVersion>16.*</em:maxVersion>
+        <em:minVersion>10.0</em:minVersion>
+        <em:maxVersion>17.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 

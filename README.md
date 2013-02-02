@@ -14,7 +14,6 @@ TODO List
 --------------
 - encoding
 - javaDoc
-- zastavenie pluginu po získaní google access tokenu - pocas vytvarania udalosti
 
 
 
@@ -32,7 +31,6 @@ TODO List
 --------------
 - encoding
 - javaDoc
-- plugin stop when get new google access token - during event creation
 
 
 
