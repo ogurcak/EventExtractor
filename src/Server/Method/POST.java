@@ -98,7 +98,9 @@ public class POST
 				incomingLine = incomingLine.concat("\n" + line);
 			}
 		} catch (Exception e) {
+			new Response(outgoing).sendResponse(404, e.toString());
 			logger.fatal(e);
+			
 		}
 	}
 
@@ -136,7 +138,9 @@ public class POST
 			}
 
 		} catch (Exception e) {
+			new Response(outgoing).sendResponse(404, e.toString());
 			logger.fatal(e);
+			
 		}
 	}
 }

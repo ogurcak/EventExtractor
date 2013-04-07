@@ -4,7 +4,7 @@ var eventextractor = {
     token_URL : "https://accounts.google.com/o/oauth2/auth?client_id=256241156366.apps.googleusercontent.com&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=https://www.googleapis.com/auth/calendar",   
     database_Json : {},
     success_code : "none",   
-    curent_version : "EventExtractor 3.0",   
+    curent_version : "EventExtractor 2.4",   
 	message_id : "0",	
     myWindow : null,
 	prefs: null,
@@ -354,7 +354,7 @@ var eventextractor = {
         messagepane = messagepane.concat("To: " + selectedMessage.recipients + "\n");
         messagepane = messagepane.concat("Date: " +selectedMessage.dateInSeconds +"\n");
         messagepane = messagepane.concat("Subject: " + selectedMessage.subject + "\n");
-               
+              
         let messenger = Components.classes["@mozilla.org/messenger;1"].createInstance(Components.interfaces.nsIMessenger);
         let listener = Components.classes["@mozilla.org/network/sync-stream-listener;1"].createInstance(Components.interfaces.nsISyncStreamListener);
         let uri = selectedMessage.folder.getUriForMsg(selectedMessage);

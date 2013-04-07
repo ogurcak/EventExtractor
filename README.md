@@ -12,7 +12,7 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
-- encoding
+- encoding (predmet aj text správy)
 - javaDoc
 
 
@@ -29,7 +29,7 @@ http://events.email.ui.sav.sk/
 
 TODO List
 --------------
-- encoding
+- encoding (subject and text of email)
 - javaDoc
 
 

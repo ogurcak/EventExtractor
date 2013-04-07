@@ -49,7 +49,7 @@ public class Response
 		try {
 			outgoing.writeBytes(statusLine);
 
-			outgoing.writeBytes("Server: Java HTTPServer");
+			outgoing.writeBytes("Server: Java HTTPServer"+ "\r\n");
 			outgoing.writeBytes("Content-Type: application/json" + "\r\n");
 			outgoing.writeBytes("Content-Length: " + responseString.length() + "\r\n");
 			outgoing.writeBytes("Connection: close\r\n");
