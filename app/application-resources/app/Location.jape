@@ -1,0 +1,105 @@
+Phase:	AddressElements
+Input:  Token Lookup
+Options: control = appelt
+
+Macro: STREET_NUMBER
+(
+ ({Token.kind == number, Token.string ==~ "[1-9][0-9]{0,3}"})
+ (
+  (
+   ({Token.string ==~ "[/-]"})?
+   {Token.string ==~ "[a-zA-Z]"}
+  )
+  |
+  (
+   {Token.string ==~ "[/-]"}
+   {Token.number ==~ "[1-9][0-9]{0,3}"}
+  )
+ )?
+)
+
+Macro: POSTAL_CODE
+(
+ (
+  {Token.kind == number,Token.length == "3"}
+  {Token.kind == number,Token.length == "2"}
+ )
+ |
+ (
+  {Token.kind == number,Token.length == "5"}
+ )
+)
+
+Rule: StreetSlovak
+(
+	({Lookup.minorType == Street}):name
+	((STREET_NUMBER):number)?
+):street -->
+:street.SK_Location = {kind = Street, rule = StreetSlovak, LOCATION = :street@string}
+
+Rule: PostalCodeSlovak1
+(
+ (POSTAL_CODE):code
+ ({Lookup.minorType == City}):city
+):postalCode -->
+:code.SK_Location = {kind = PostalCode, rule = PostalCodeSlovak1, LOCATION = :code@string},
+:city.SK_Location = {kind = City, rule = PostalCodeSlovak1, LOCATION = :city@string}
+
+Rule: PostalCodeSlovak2
+(
+ ({Lookup.minorType == City}):city
+ (POSTAL_CODE):code
+):postalCode -->
+:code.SK_Location = {kind = PostalCode, rule = PostalCodeSlovak2, LOCATION = :code@string},
+:city.SK_Location = {kind = City, rule = PostalCodeSlovak2, LOCATION = :city@string}
+
+Rule: Street1
+(
+ ({Token.string ==~ "[nN]a"})
+ ({Token.string ==~ "[uU]lici"})
+ ({Token.orth == upperInitial})+:streetName
+):street -->
+:streetName.SK_Location = {kind = StreetName, rule = Street1, LOCATION = :street@string}
+
+Phase:	Address
+Input:  Token SK_Location
+Options: control = appelt
+
+Rule: Address1
+(
+	{SK_Location.kind == Street}
+	({Token.kind == punctuation})?
+	{SK_Location.kind == PostalCode}
+	{SK_Location.kind == City}
+):Address -->
+{
+//removes TempDate annotation, gets the rule feature and adds a new Date annotation
+gate.AnnotationSet address = (gate.AnnotationSet)bindings.get("Address");
+
+gate.FeatureMap features = Factory.newFeatureMap();
+features.put("rule", "Address1");
+features.put("kind", "Address");
+features.put("LOCATION", doc.getContent().toString().substring(Integer.parseInt(address.firstNode().getOffset().toString()), Integer.parseInt(address.lastNode().getOffset().toString())).replaceAll("\\s", " "));
+outputAS.add(address.firstNode(), address.lastNode(), "SK_Location", features);
+outputAS.removeAll(address);
+}
+
+
+Rule: Address2
+(
+	{SK_Location.kind == Street}
+	({Token.kind == punctuation})?
+	{SK_Location.kind == City}
+	{SK_Location.kind == PostalCode}
+):Address -->
+{
+//removes TempDate annotation, gets the rule feature and adds a new Date annotation
+gate.AnnotationSet address = (gate.AnnotationSet)bindings.get("Address");
+
+gate.FeatureMap features = Factory.newFeatureMap();
+features.put("rule", "Address2");
+features.put("kind", "Address");
+features.put("LOCATION", doc.getContent().toString().substring(Integer.parseInt(address.firstNode().getOffset().toString()), Integer.parseInt(address.lastNode().getOffset().toString())));
+outputAS.add(address.firstNode(), address.lastNode(), "SK_Location", features);
+outputAS.removeAll(address);
+}
