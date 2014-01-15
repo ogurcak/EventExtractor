@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>IKT_Tools</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>classes</name>
+			<type>2</type>
+			<location>/Users/stevo/workspace_magnetic/IKT Tools/classes</location>
+		</link>
+		<link>
+			<name>gate.jar</name>
+			<type>2</type>
+			<location>/Users/stevo/bin/gate.jar</location>
+		</link>
+	</linkedResources>
+</projectDescription>

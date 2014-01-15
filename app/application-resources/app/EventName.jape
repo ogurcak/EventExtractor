@@ -9,7 +9,7 @@
 
 
 Phase:	EventName
-Input: Split Token SK_DateTime Lookup
+Input: Split Token 
 Options: control = appelt
 
 
@@ -28,6 +28,9 @@ Macro: END_BRACKET
 )
 
 
+
+
+
 //=======================================================================================================================================
 //=======================================================================================================================================
 //=======================================================================================================================================
@@ -40,18 +43,13 @@ Macro: END_BRACKET
 
 
 
-Rule:	NameInSubject
+ 
+Rule:	NameInSentence2
 Priority: 80
-// 01.07.00 alebo 1.7.2012  
 (
- (((MARK)+)|
- (START_BRACKET
- ({Token})+
- END_BRACKET)+)+
- (({Token})+):NAME
- (({SK_DateTime})*)
+  (({Token})+):NAME1
  )
 :name
 -->
- :name.SK_Name = {NAME = :NAME@string, rule = "NameInSubject" }
+ :name.SK_Name = {NAME = :NAME1@string, rule = "NameInSentence2" }
  

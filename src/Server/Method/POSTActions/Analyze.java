@@ -370,8 +370,12 @@ public class Analyze
 
 		logger.debug("Getting recepients.");
 		String receivers = "";
-		for (Address address : message.getRecipients(Message.RecipientType.TO)) {
-			receivers = receivers.concat(address + ";");
+		try{
+			for (Address address : message.getRecipients(Message.RecipientType.TO)) {
+				receivers = receivers.concat(address + ";");
+			}
+		}catch(Exception e){
+			logger.warn(e.getMessage());
 		}
 
 		logger.debug("Getting senders.");
@@ -418,9 +422,6 @@ public class Analyze
 
 		while (rs.next()) {
 			long rsTimeStamp = rs.getTimestamp("timeStamp").getTime();
-			logger.debug("1:"+beforeInsertTimestamp/1000);
-			logger.debug("2:"+rsTimeStamp/1000);
-			logger.debug("3:"+afterInsertTimestamp/1000);
 			if (rsTimeStamp/1000 >= beforeInsertTimestamp/1000 && rsTimeStamp/1000 <= afterInsertTimestamp/1000) {
 				id = rs.getInt("id");
 				preparedStmt1.close();

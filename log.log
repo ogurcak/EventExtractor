@@ -1,0 +1,8 @@
+[ERROR:Database.java (66) 2013-03-02 14:16:33,246] 
+ Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server. :Database connection problem.
+
+[INFO:Main.java (74) 2013-03-02 14:16:43,297] 
+ Server is ready and waiting for client request.
+

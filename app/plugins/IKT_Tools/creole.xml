@@ -1,0 +1,13 @@
+<!-- creole.xml IKT Tools -->
+<!--  stevo, 15/11/2013 -->
+
+<!--
+This file just references the JAR file that contains the compiled resource.
+Configuration is contained in the @CreoleResource annotation on 
+sk.sav.ui.ikt.nlp.gate.* .
+-->
+
+<CREOLE-DIRECTORY ID="IKT Tools" VERSION="1.0" GATE-MIN="7.1" DESCRIPTION="IKT NLP Tools (Gazetteers)">
+  <JAR SCAN="true">ikt-gate-tools.jar</JAR>
+  <JAR SCAN="false">lib/ikt-gazetteers-1.0.jar</JAR>
+</CREOLE-DIRECTORY>

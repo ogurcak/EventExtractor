@@ -30,6 +30,16 @@ Macro: POSTAL_CODE
  )
 )
 
+
+
+Rule: UserEntered
+(
+	({Lookup.minorType == UserEntered}):LOCATION
+):Address -->
+	:Address.SK_Location = {kind = "Location" rule = "UserEntered" LOCATION = :LOCATION@string}
+	
+	
+	
 Rule: StreetSlovak
 (
 	({Lookup.minorType == Street}):name
@@ -99,7 +109,46 @@ gate.AnnotationSet address = (gate.AnnotationSet)bindings.get("Address");
 gate.FeatureMap features = Factory.newFeatureMap();
 features.put("rule", "Address2");
 features.put("kind", "Address");
-features.put("LOCATION", doc.getContent().toString().substring(Integer.parseInt(address.firstNode().getOffset().toString()), Integer.parseInt(address.lastNode().getOffset().toString())));
+features.put("LOCATION", doc.getContent().toString().substring(Integer.parseInt(address.firstNode().getOffset().toString()), Integer.parseInt(address.lastNode().getOffset().toString())).replaceAll("\\s", " "));
 outputAS.add(address.firstNode(), address.lastNode(), "SK_Location", features);
 outputAS.removeAll(address);
 }
+
+
+Rule: Address3
+(
+	{SK_Location.kind == City}
+	{SK_Location.kind == PostalCode}
+):Address -->
+{
+//removes TempDate annotation, gets the rule feature and adds a new Date annotation
+gate.AnnotationSet address = (gate.AnnotationSet)bindings.get("Address");
+
+gate.FeatureMap features = Factory.newFeatureMap();
+features.put("rule", "Address3");
+features.put("kind", "Address");
+features.put("LOCATION", doc.getContent().toString().substring(Integer.parseInt(address.firstNode().getOffset().toString()), Integer.parseInt(address.lastNode().getOffset().toString())).replaceAll("\\s", " "));
+outputAS.add(address.firstNode(), address.lastNode(), "SK_Location", features);
+outputAS.removeAll(address);
+}
+
+
+Rule: Address4
+(
+	{SK_Location.kind == PostalCode}
+	{SK_Location.kind == City}
+):Address -->
+{
+//removes TempDate annotation, gets the rule feature and adds a new Date annotation
+gate.AnnotationSet address = (gate.AnnotationSet)bindings.get("Address");
+
+gate.FeatureMap features = Factory.newFeatureMap();
+features.put("rule", "Address4");
+features.put("kind", "Address");
+features.put("LOCATION", doc.getContent().toString().substring(Integer.parseInt(address.firstNode().getOffset().toString()), Integer.parseInt(address.lastNode().getOffset().toString())).replaceAll("\\s", " "));
+outputAS.add(address.firstNode(), address.lastNode(), "SK_Location", features);
+outputAS.removeAll(address);
+}
+
+
+

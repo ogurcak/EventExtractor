@@ -117,7 +117,6 @@ final public class Database
 				logger.info("Database reconnected.");
 			}
 			statement.execute();
-			logger.info("Saved to database.");
 		} else
 			logger.error("Database connection problem.");
 	}
