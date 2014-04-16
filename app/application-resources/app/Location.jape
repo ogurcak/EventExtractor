@@ -152,3 +152,27 @@ outputAS.removeAll(address);
 
 
 
+Phase:   CustomElements
+Input:  Token Sentence Lookup SK_DateTime
+Options: control = appelt
+
+
+Rule: Address5
+(
+	({Token.string ==~ "[nN]a"} | {Token.string ==~ "[vV]"} | {Token.string ==~ "[pP]red"})
+	({Lookup.majorType == Noun})+
+	
+):Address -->
+{
+gate.AnnotationSet address = (gate.AnnotationSet)bindings.get("Address");
+
+gate.FeatureMap features = Factory.newFeatureMap();
+features.put("rule", "Address5");
+features.put("kind", "Address");
+features.put("LOCATION", doc.getContent().toString().substring(Integer.parseInt(address.firstNode().getOffset().toString()), Integer.parseInt(address.lastNode().getOffset().toString())).replaceAll("\\s", " "));
+outputAS.add(address.firstNode(), address.lastNode(), "SK_Location", features);
+outputAS.removeAll(address);
+}
+
+
+
