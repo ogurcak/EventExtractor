@@ -8,8 +8,8 @@
 */
 
 
-Phase:	EventName
-Input: Split Token 
+Phase:	EventName2
+Input: Sentence SK_Location SK_DateTime
 Options: control = appelt
 
 
@@ -19,12 +19,14 @@ Macro: MARK
  ({Token.string == "Re"}{Token.string == ":"})
 )
 
-Macro: START_BRACKET
-({Token.string == "["}
+Macro: START
+(
+	  {SK_Location} | {SK_DateTime}
 )
 
-Macro: END_BRACKET
-({Token.string == "]"}
+Macro: END
+(
+	 {SK_Location} | {SK_DateTime}
 )
 
 
@@ -41,15 +43,27 @@ Macro: END_BRACKET
 
 
 
-
+ 
 
  
-Rule:	NameInSentence2
-Priority: 80
-(
-  (({Token})+):NAME1
- )
-:name
+Rule: NameBetweenSentence
+Priority: 2
+(START):left
+(END):right
 -->
- :name.SK_Name = {NAME = :NAME1@string, rule = "NameInSentence2" }
+{
+  Node start = ((AnnotationSet) bindings.get("left"))
+               .lastNode();
+  Node end   = ((AnnotationSet) bindings.get("right"))
+               .firstNode();
+
+	String name = doc.getContent().toString().substring(Integer.parseInt(start.getOffset().toString()), Integer.parseInt(end.getOffset().toString())).replaceAll("\\s", " ").replaceAll("  ", " ");
+  FeatureMap features = Factory.newFeatureMap();
+  features.put("rule", "NameBetweenSentence");
+  features.put("kind", "Name");
+  features.put("NAME", name);
+
+if(name.length() > 5)
+  outputAS.add(start, end, "SK_Name", features);
+}
  
